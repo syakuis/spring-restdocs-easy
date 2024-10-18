@@ -1,0 +1,99 @@
+import org.gradle.api.internal.provider.MappingProvider
+
+buildscript {
+    ext {
+        springBootVersion = "3.2.10"
+        lombokVersion = '1.18.32'
+
+        snippetsDir = layout.buildDirectory.dir("generated-snippets") as MappingProvider
+    }
+
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+        classpath "io.spring.gradle:dependency-management-plugin:1.1.0"
+        classpath "org.asciidoctor:asciidoctor-gradle-jvm:3.3.2"
+        classpath "gradle.plugin.com.google.gradle:osdetector-gradle-plugin:1.7.2"
+    }
+}
+
+apply plugin: "java"
+apply plugin: "org.springframework.boot"
+apply plugin: "io.spring.dependency-management"
+apply plugin: "org.asciidoctor.jvm.convert"
+apply plugin: "com.google.osdetector"
+
+wrapper {
+    gradleVersion = "8.10"
+}
+
+group = "com.github.syakuis"
+version = "1.0.0-SNAPSHOT"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    asciidoctorExtensions
+}
+
+dependencies {
+    if (osdetector.arch.equals("aarch_64")) {
+        implementation "io.netty:netty-resolver-dns-native-macos:4.1.79.Final:osx-aarch_64"
+    }
+
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
+    asciidoctorExtensions "org.springframework.restdocs:spring-restdocs-asciidoctor"
+
+    implementation "org.springframework.restdocs:spring-restdocs-mockmvc"
+    implementation "org.springframework.boot:spring-boot-starter-test"
+    implementation "org.springframework.boot:spring-boot-starter-validation"
+
+    testImplementation "org.springframework.boot:spring-boot-starter-web"
+}
+
+asciidoctor {
+    inputs.dir snippetsDir
+    configurations 'asciidoctorExtensions'
+    dependsOn test
+}
+
+test {
+    outputs.dir snippetsDir
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+    systemProperty 'spring.profiles.active', 'test'
+}
+
+bootJar {
+    enabled false
+}
+
+jar {
+    enabled true
+}

@@ -1,0 +1,21 @@
+logging:
+  level:
+    root: info
+    org.springframework.web: debug
+    com.github.syakuis: trace
+server:
+  port: -1
+  forward-headers-strategy: native
+  servlet:
+    encoding:
+      force-response: true
+spring:
+  application:
+    name: spring-restdocs-easy
+  main:
+    banner-mode: console
+  messages:
+    basename: i18n/message
+  web:
+    locale: ko_KR
+    locale-resolver: fixed

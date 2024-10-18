@@ -1,0 +1,14 @@
+application-default.yml
+application-default.properties
+gradle.properties
+
+*~
+.DS_Store
+
+build/
+.idea
+.gradle
+*.iml
+*.hprof
+*.log
+*.bak
