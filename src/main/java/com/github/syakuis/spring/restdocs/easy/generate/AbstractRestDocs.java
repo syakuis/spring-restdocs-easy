@@ -1,23 +1,40 @@
 package com.github.syakuis.spring.restdocs.easy.generate;
 
 import org.springframework.context.MessageSource;
-import org.springframework.restdocs.constraints.*;
+import org.springframework.restdocs.constraints.ConstraintDescriptions;
+import org.springframework.restdocs.snippet.Attributes;
 
-import java.util.ResourceBundle;
+import static org.springframework.restdocs.snippet.Attributes.key;
 
 /**
+ * Abstract class providing common functionality for generating RestDocs.
+ * This includes resolving constraint descriptions and validation messages.
  * @author Seok Kyun. Choi.
  * @since 2024-10-18
  */
 abstract class AbstractRestDocs extends RestDocsMessageSourceAccessor {
-    private final ConstraintResolver constraintResolver = new ValidatorConstraintResolver();
-    private final ConstraintDescriptionResolver constraintDescriptionResolver = new ResourceBundleConstraintDescriptionResolver(ResourceBundle.getBundle("DefaultConstraintDescriptions"));
+    private final ConstraintDescriptions constraintDescriptions;
 
-    AbstractRestDocs(MessageSource messageSource) {
+    /**
+     * Constructor to initialize the AbstractRestDocs with message source and class type.
+     *
+     * @param messageSource The MessageSource for resolving validation messages
+     * @param targetClass   The class for which descriptors are generated
+     */
+    AbstractRestDocs(MessageSource messageSource, Class<?> targetClass) {
         super(messageSource);
+        this.constraintDescriptions = new ConstraintDescriptions(targetClass);
     }
 
-    protected ConstraintDescriptions getConstraintDescriptions(Class<?> objectType) {
-        return new ConstraintDescriptions(objectType, constraintResolver, constraintDescriptionResolver);
+    /**
+     * Retrieves the validation constraints for a given field as an array of Attributes.
+     *
+     * @param fieldName The name of the field
+     * @return An array of Attributes containing the field's validation constraints
+     */
+    protected Attributes.Attribute[] getConstraints(String fieldName) {
+        return new Attributes.Attribute[]{
+            key("constraints").value(String.join("\n\n", constraintDescriptions.descriptionsForProperty(fieldName)))
+        };
     }
 }

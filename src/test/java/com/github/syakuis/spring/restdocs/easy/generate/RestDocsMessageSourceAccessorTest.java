@@ -1,7 +1,6 @@
 package com.github.syakuis.spring.restdocs.easy.generate;
 
 import com.github.syakuis.spring.restdocs.easy.core.DataClassLoader;
-import com.github.syakuis.spring.restdocs.easy.core.DataClassMetadata;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,10 +10,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Import;
 
-import java.util.Collections;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Seok Kyun. Choi.
