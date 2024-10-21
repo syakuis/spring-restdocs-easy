@@ -12,7 +12,7 @@ import static org.springframework.restdocs.snippet.Attributes.key;
  * @author Seok Kyun. Choi.
  * @since 2024-10-18
  */
-abstract class AbstractRestDocs extends RestDocsMessageSourceAccessor {
+abstract class AbstractDescriptor extends DescriptorMessageSourceAccessor {
     private final ConstraintDescriptions constraintDescriptions;
 
     /**
@@ -21,7 +21,7 @@ abstract class AbstractRestDocs extends RestDocsMessageSourceAccessor {
      * @param messageSource The MessageSource for resolving validation messages
      * @param targetClass   The class for which descriptors are generated
      */
-    AbstractRestDocs(MessageSource messageSource, Class<?> targetClass) {
+    AbstractDescriptor(MessageSource messageSource, Class<?> targetClass) {
         super(messageSource);
         this.constraintDescriptions = new ConstraintDescriptions(targetClass);
     }

@@ -13,10 +13,10 @@ import java.util.Locale;
  * @author Seok Kyun. Choi.
  * @since 2024-01-12
  */
-public class RestDocsMessageSourceAccessor {
+public class DescriptorMessageSourceAccessor {
     private final MessageSource messageSource;
 
-    public RestDocsMessageSourceAccessor(MessageSource messageSource) {
+    public DescriptorMessageSourceAccessor(MessageSource messageSource) {
         this.messageSource = messageSource;
     }
 
