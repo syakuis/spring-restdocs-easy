@@ -20,13 +20,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @WebMvcTest
 @Import({MessageSourceAutoConfiguration.class})
-class ClassLoaderRestDocsTest {
+class ClassLoaderDescriptorTest {
     @Autowired
     private MessageSource messageSource;
 
     @Test
+    void testColor() {
+        var result = new ClassLoaderDescriptor(messageSource, Color.class).generate();
+
+        result.forEach(it -> {
+            if (it.name().equals("background")) {
+                assertEquals("배경색", it.description());
+            } else if (it.name().equals("font")) {
+                assertEquals("글자색", it.description());
+            }
+        });
+    }
+
+    @Test
     void getMessage() {
-        var result = new ClassLoaderRestDocs(messageSource, Sample.class).generate();
+        var result = new ClassLoaderDescriptor(messageSource, Sample.class).generate();
 
         result.stream().filter(it -> it.name().equals("name")).forEach(it -> {
             assertEquals("테스트", it.description());
@@ -36,7 +49,7 @@ class ClassLoaderRestDocsTest {
 
     @Test
     void testOptionalField() {
-        var result = new ClassLoaderRestDocs(messageSource, SampleWithOptionalField.class).generate();
+        var result = new ClassLoaderDescriptor(messageSource, SampleWithOptionalField.class).generate();
 
         result.stream().filter(it -> it.name().equals("optionalField")).forEach(it -> {
             assertTrue(it.optional());
@@ -45,7 +58,7 @@ class ClassLoaderRestDocsTest {
 
     @Test
     void testFieldWithoutConstraints() {
-        var result = new ClassLoaderRestDocs(messageSource, SampleWithoutConstraints.class).generate();
+        var result = new ClassLoaderDescriptor(messageSource, SampleWithoutConstraints.class).generate();
 
         result.stream().filter(it -> it.name().equals("noConstraintField")).forEach(it -> {
             assertEquals(0, it.attributes().length);
@@ -54,7 +67,7 @@ class ClassLoaderRestDocsTest {
 
     @Test
     void testEnumField() {
-        var result = new ClassLoaderRestDocs(messageSource, SampleWithEnum.class).generate();
+        var result = new ClassLoaderDescriptor(messageSource, SampleWithEnum.class).generate();
 
         result.stream().filter(it -> it.name().equals("enumField")).forEach(it -> {
             assertTrue(it.description().toString().contains("ENUM_CONSTANT"));
@@ -63,7 +76,7 @@ class ClassLoaderRestDocsTest {
 
     @Test
     void testFieldWithNotNullConstraint() {
-        var result = new ClassLoaderRestDocs(messageSource, SampleWithNotNull.class).generate();
+        var result = new ClassLoaderDescriptor(messageSource, SampleWithNotNull.class).generate();
 
         result.stream().filter(it -> it.name().equals("notNullField")).forEach(it -> {
             assertTrue(it.attributes().length > 0);
@@ -74,7 +87,7 @@ class ClassLoaderRestDocsTest {
 
     @Test
     void testFieldWithSizeConstraint() {
-        var result = new ClassLoaderRestDocs(messageSource, SampleWithSize.class).generate();
+        var result = new ClassLoaderDescriptor(messageSource, SampleWithSize.class).generate();
 
         result.stream().filter(it -> it.name().equals("sizeField")).forEach(it -> {
             assertTrue(it.attributes().length > 0);  // Check that constraints are present

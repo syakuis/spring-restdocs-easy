@@ -14,7 +14,7 @@ import java.util.List;
  * @author Seok Kyun. Choi.
  * @since 2024-10-18
  */
-public class ClassLoaderRestDocs extends AbstractRestDocs {
+public class ClassLoaderDescriptor extends AbstractDescriptor {
     private final Class<?> targetClass;
 
     /**
@@ -23,7 +23,7 @@ public class ClassLoaderRestDocs extends AbstractRestDocs {
      * @param messageSource MessageSource for resolving messages
      * @param targetClass   The class to generate descriptors for
      */
-    public ClassLoaderRestDocs(MessageSource messageSource, Class<?> targetClass) {
+    public ClassLoaderDescriptor(MessageSource messageSource, Class<?> targetClass) {
         super(messageSource, targetClass);
         this.targetClass = targetClass;
     }
