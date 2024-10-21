@@ -2,9 +2,12 @@ package com.github.syakuis.spring.restdocs.easy.generate;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.restdocs.snippet.Attributes;
+
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * @author Seok Kyun. Choi.
@@ -13,24 +16,76 @@ import org.springframework.restdocs.payload.JsonFieldType;
 @Getter
 @Accessors(fluent = true)
 @Builder
-@ToString
 public class Descriptor {
+    // Represents the name of the field.
     private final String name;
 
+    // Indicates the data type of the field, with a default value of JsonFieldType.STRING.
     @Builder.Default
-    private final JsonFieldType type = JsonFieldType.STRING; // 기본값 설정
+    private JsonFieldType type = JsonFieldType.STRING;
 
-    private final Object description;
+    private Object description;
 
-    /**
-     * 필드가 필수적이지 않고 선택적임을 문서화한다.
-     */
+    // Documents that the field is optional and not mandatory.
     @Builder.Default
-    private final boolean optional = false; // 기본값 설정
+    private boolean optional = false;
 
-    /**
-     * 필드를 문서화에서 제외한다.
-     */
+    // Excludes the field from documentation.
     @Builder.Default
-    private final boolean ignore = false; // 기본값 설정
+    private boolean ignore = false;
+
+    // Contains additional attributes for the field.
+    private Attributes.Attribute[] attributes;
+
+    public Descriptor type(JsonFieldType type) {
+        this.type = type;
+        return this;
+    }
+
+    public Descriptor description(Object description) {
+        this.description = description;
+        return this;
+    }
+
+    public Descriptor optional(boolean optional) {
+        this.optional = optional;
+        return this;
+    }
+
+    public Descriptor attributes(Attributes.Attribute[] attributes) {
+        this.attributes = attributes;
+        return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Descriptor that = (Descriptor) o;
+        return optional == that.optional && ignore == that.ignore && Objects.equals(name, that.name) && type == that.type && Objects.equals(description, that.description) && Arrays.equals(attributes, that.attributes);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hashCode(name);
+        result = 31 * result + Objects.hashCode(type);
+        result = 31 * result + Objects.hashCode(description);
+        result = 31 * result + Boolean.hashCode(optional);
+        result = 31 * result + Boolean.hashCode(ignore);
+        result = 31 * result + Arrays.hashCode(attributes);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Descriptor{" +
+            "name='" + name + '\'' +
+            ", type=" + type +
+            ", description=" + description +
+            ", optional=" + optional +
+            ", ignore=" + ignore +
+            ", attributes=" + Arrays.toString(attributes) +
+            '}';
+    }
 }
