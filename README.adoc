@@ -4,14 +4,14 @@
 :toc: left
 :toclevels: 2
 
-= Spring RestDocs Easy
+= Spring REST Docs Easy
 
 Spring REST Docs Easy makes API documentation simpler and more efficient through automation and internationalization support.
 
 **Key Strengths of Spring REST Docs Easy**
 
 1. **Automated Description Generation**:
-- Automatically reads class structures to generate description objects, greatly simplifying the documentation process. This reduces the burden on developers to manually write documentation code, making it especially useful in environments where data models frequently change.
+- Automatically reads class structures to generate descriptor objects, greatly simplifying the documentation process. This reduces the burden on developers to manually write documentation code, making it especially useful in environments where data models frequently change.
 2. **Internationalization Support**:
 - Utilizes internationalization messages to bind descriptions, making it easier to manage documentation in projects that require multilingual support. This is a significant advantage for applications targeting global markets.
 3. **Validation Annotation Handling**:

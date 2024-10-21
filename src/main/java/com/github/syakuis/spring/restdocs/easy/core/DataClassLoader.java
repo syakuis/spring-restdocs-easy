@@ -53,6 +53,8 @@ public final class DataClassLoader {
     public List<DataClassMetadata> toList() {
         var packageName = targetClass.getPackageName();
         var className = targetClass.getSimpleName();
+        var name = targetClass.getName();
+        var canonicalName = targetClass.getCanonicalName();
 
         Field[] fields = targetClass.getDeclaredFields();
 
@@ -66,6 +68,8 @@ public final class DataClassLoader {
                 packageName,
                 className,
                 field.getName(),
+                name,
+                canonicalName,
                 field.getType(),
                 targetClass,
                 field,

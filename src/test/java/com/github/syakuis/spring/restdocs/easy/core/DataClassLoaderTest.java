@@ -39,6 +39,7 @@ class DataClassLoaderTest {
     @Test
     void shouldLoadFieldsFromUserClass() {
         List<DataClassMetadata> metadata = DataClassLoader.of(User.class).toList();
+
         List<String> fieldNames = metadata.stream()
             .map(DataClassMetadata::fieldName)
             .toList();
@@ -55,6 +56,7 @@ class DataClassLoaderTest {
 
         assertNotNull(usernameMetadata);
         assertNotEquals(0, usernameMetadata.annotations().length);
+        assertEquals("com.github.syakuis.spring.restdocs.easy.core.DataClassLoaderTest$User.username", usernameMetadata.name() + "." + usernameMetadata.fieldName());
 
         boolean hasNotNullAnnotation = Arrays.stream(usernameMetadata.annotations())
             .anyMatch(annotation -> annotation.annotationType().equals(NotNull.class));
