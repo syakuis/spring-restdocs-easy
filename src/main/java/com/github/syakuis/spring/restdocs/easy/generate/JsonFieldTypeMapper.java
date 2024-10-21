@@ -66,4 +66,6 @@ public class JsonFieldTypeMapper {
 
         return JsonFieldType.OBJECT;
     }
+
+    // todo setter
 }

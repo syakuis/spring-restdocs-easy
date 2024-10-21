@@ -12,24 +12,23 @@ import java.util.List;
 public class ClassLoaderRestDocs extends AbstractRestDocs {
     private final FieldOptionalValidator fieldOptionalValidator;
 
-    public ClassLoaderRestDocs(MessageSource messageSource, List<MessageFormatter> messageFormatters, List<Class<?>> validationGroups) {
-        super(messageSource, messageFormatters);
+    public ClassLoaderRestDocs(MessageSource messageSource, List<Class<?>> validationGroups) {
+        super(messageSource);
         this.fieldOptionalValidator = new FieldOptionalValidator(validationGroups);
     }
 
-    private List<Description> of(Class<?> objectType) {
+    // todo generate
+    public List<Descriptor> toList(Class<?> objectType) {
 //        ConstraintDescriptions userConstraints = super.getConstraintDescriptions(objectType);
 
         return DataClassLoader.of(objectType).toList().stream().map(it -> {
 
-                boolean isValid = fieldOptionalValidator.hasValidationConstraint(it.field());
+//                boolean isValid = fieldOptionalValidator.hasValidationConstraint(it.field());
 
-                return Description.builder()
+                return Descriptor.builder()
                     .name(it.fieldName())
                     .type(JsonFieldTypeMapper.get(it.fieldType()))
-                    // todo messageSource
-                    .desc(it.field())
-                    // todo optional 과 ignore 역할 확인
+                    .description(super.getMessage(it))
                     .optional(fieldOptionalValidator.isFieldOptional(it.field()))
                     .ignore(false)
                     /*.attributes(
