@@ -90,6 +90,11 @@ test {
     systemProperty 'spring.profiles.active', 'test'
 }
 
+tasks.register('sourcesJar', Jar) {
+    archiveClassifier.set('sources')
+    from sourceSets.main.allSource
+}
+
 bootJar {
     enabled false
 }

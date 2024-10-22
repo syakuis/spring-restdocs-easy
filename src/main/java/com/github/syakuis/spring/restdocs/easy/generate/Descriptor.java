@@ -52,6 +52,11 @@ public class Descriptor {
         return this;
     }
 
+    public Descriptor ignore(boolean ignore) {
+        this.ignore = ignore;
+        return this;
+    }
+
     public Descriptor attributes(Attributes.Attribute[] attributes) {
         this.attributes = attributes;
         return this;
