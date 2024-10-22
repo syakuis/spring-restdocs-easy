@@ -17,16 +17,16 @@ public final class DataClassLoader {
         this.targetClass = targetClass;
     }
 
-    private boolean isRecordGetter(Class<?> target, String fieldName, Class<?> fieldType) {
-        if (fieldName.isBlank() || target == null) {
+    private boolean isRecordGetter(Class<?> targetClass, String fieldName, Class<?> fieldType) {
+        if (fieldName.isBlank() || targetClass == null) {
             return false;
         }
 
-        return isMethod(target, fieldName, fieldType);
+        return isMethod(targetClass, fieldName, fieldType);
     }
 
-    private boolean isGetter(Class<?> target, String fieldName, Class<?> fieldType) {
-        if (fieldName.isBlank() || target == null) {
+    private boolean isGetter(Class<?> targetClass, String fieldName, Class<?> fieldType) {
+        if (fieldName.isBlank() || targetClass == null) {
             return false;
         }
 
@@ -34,22 +34,38 @@ public final class DataClassLoader {
         var methodName = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
 
         // fluent method
-        if (isMethod(target, fieldName, fieldType)) {
+        if (isMethod(targetClass, fieldName, fieldType)) {
             return true;
-        } else if (isMethod(target, "get" + methodName, fieldType)) {
+        } else if (isMethod(targetClass, "get" + methodName, fieldType)) {
             return true;
-        } else return isMethod(target, "is" + methodName, fieldType);
+        } else return isMethod(targetClass, "is" + methodName, fieldType);
     }
 
-    private boolean isMethod(Class<?> target, String methodName, Class<?> fieldType) {
+    private boolean isMethod(Class<?> targetClass, String methodName, Class<?> fieldType) {
         try {
-            var method = target.getMethod(methodName);
+            var method = targetClass.getMethod(methodName);
             return Modifier.isPublic(method.getModifiers()) && method.getReturnType().equals(fieldType);
         } catch (NoSuchMethodException e) {
             return false;
         }
     }
 
+    /**
+     * Generates a list of field metadata for the target class.
+     *
+     * This method processes only fields that meet the following conditions:
+     * 1. Fields of enum type
+     * 2. Fields with a getter method
+     *    - For regular classes, {@link #isGetter(Class, String, Class)} is used to check for the presence of a getter method.
+     *    - For record classes, {@link #isRecordGetter(Class, String, Class)} is used to check for the presence of a getter method.
+     *
+     * Important notes:
+     * - Fields without a getter method are not processed.
+     * - Inherited fields are not processed. Only fields explicitly declared in the target class are processed.
+     * - Fields with private, protected, or default access modifiers are only accessible through their getter methods.
+     *
+     * @return A list of field metadata
+     */
     public List<DataClassMetadata> toList() {
         var packageName = targetClass.getPackageName();
         var className = targetClass.getSimpleName();

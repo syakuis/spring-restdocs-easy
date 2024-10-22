@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - 'develop'
+      - 'main'
 
 jobs:
   build:
@@ -21,9 +22,7 @@ jobs:
 
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@main
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@main
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@main
-        with:
-          arguments: >
-            -Pspring.profiles.active=test
-            build
+        run: ./gradlew -Pspring.profiles.active=test build
