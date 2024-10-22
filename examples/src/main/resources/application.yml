@@ -1,0 +1,16 @@
+logging:
+  level:
+    root: info
+    com.github.syakuis: info
+    org.springframework.web: info
+server:
+  port: 8080
+  forward-headers-strategy: native
+spring:
+  main:
+    banner-mode: console
+  messages:
+    basename: i18n/message
+  mvc:
+    favicon:
+      requestMapping: favicon.ico

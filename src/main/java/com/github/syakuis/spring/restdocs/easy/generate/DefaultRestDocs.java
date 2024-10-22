@@ -285,6 +285,11 @@ class DefaultRestDocs implements RestDocs {
         }
 
         @Override
+        public ResponseFieldsSnippet responseFields(String prefix) {
+            return PayloadDocumentation.responseFields().andWithPrefix(prefix, toField());
+        }
+
+        @Override
         public RequestBodySnippet requestBody() {
             throw new UnsupportedOperationException();
         }

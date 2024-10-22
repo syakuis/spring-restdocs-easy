@@ -1,0 +1,28 @@
+apply plugin: "application"
+
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.boot:spring-boot-starter-undertow"
+    implementation "org.springframework.boot:spring-boot-starter-validation"
+
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation project(":")
+}
+
+
+application {
+    mainClass = 'com.github.syakuis.spring.restdocs.easy.examples.Application'
+}
+
+bootJar {
+    enabled true
+    launchScript()
+    dependsOn asciidoctor
+    from("${asciidoctor.outputDir}") {
+        into "BOOT-INF/classes/static/api-docs"
+    }
+}
+
+jar {
+    enabled false
+}
