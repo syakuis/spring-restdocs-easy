@@ -82,6 +82,7 @@ public interface RestDocs {
         RequestFieldsSnippet requestFields();
         RequestPartFieldsSnippet requestPartFields(String path);
         ResponseFieldsSnippet responseFields();
+        ResponseFieldsSnippet responseFields(String prefix);
         RequestBodySnippet requestBody();
         ResponseBodySnippet responseBody();
         RequestPartBodySnippet requestPartBody();
