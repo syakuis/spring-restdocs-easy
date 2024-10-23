@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,10 +31,10 @@ class DataClassLoaderTest {
     @Test
     void shouldLoadEnumClass() {
         List<DataClassMetadata> metadata = DataClassLoader.of(Sex.class).toList();
-        List<String> fieldNames = metadata.stream()
-            .map(DataClassMetadata::fieldName).toList();
+        var dataClassMetadata = metadata.stream().filter(it -> Objects.equals("sex", it.fieldName()))
+            .findFirst().orElseThrow();
 
-        assertEquals(List.of("MALE", "FEMALE"), fieldNames);
+        assertEquals("sex", dataClassMetadata.fieldName());
     }
 
     @Test

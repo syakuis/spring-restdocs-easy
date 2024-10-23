@@ -15,9 +15,12 @@ import java.util.Objects;
 public record DataClassMetadata(
     String packageName,
     String className,
+    // todo rename name
     String fieldName,
+    // todo rename packageClassName (message properties에 사용)
     String name,
     String canonicalName,
+    // todo rename type
     Class<?> fieldType,
     Class<?> target,
     Field field,

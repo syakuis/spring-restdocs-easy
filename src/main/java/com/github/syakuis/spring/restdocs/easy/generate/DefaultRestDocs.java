@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.syakuis.spring.restdocs.easy.generate.DescriptorCollector.*;
@@ -257,6 +258,46 @@ class DefaultRestDocs implements RestDocs {
         @Override
         public List<Descriptor> toList() {
             return this.descriptors.toList();
+        }
+
+        /**
+         * Returns a string representation of all descriptor descriptions joined with a space delimiter.
+         * Equivalent to toString(" ").
+         *
+         * @return A string containing all descriptions separated by spaces
+         */
+        @Override
+        public String join() {
+            return join(" ");
+        }
+
+        /**
+         * Returns a string representation of all descriptor descriptions joined with the specified delimiter.
+         * Equivalent to toString(delimiter, "", "").
+         *
+         * @param delimiter The character sequence to use as a delimiter between descriptions
+         * @return A string containing all descriptions separated by the specified delimiter
+         */
+        @Override
+        public String join(CharSequence delimiter) {
+            return join(delimiter, "", "");
+        }
+
+        /**
+         * Returns a string representation of all descriptor descriptions with specified delimiter, prefix, and suffix.
+         * Extracts descriptions from Descriptors, converts them to strings, and joins them.
+         *
+         * @param delimiter The character sequence to use as a delimiter between descriptions
+         * @param prefix The character sequence to use as a prefix for the resulting string
+         * @param suffix The character sequence to use as a suffix for the resulting string
+         * @return A string containing all descriptions with the specified formatting
+         * @see Descriptor#description() Returns the description field from the Descriptor
+         */
+        @Override
+        public String join(CharSequence delimiter, CharSequence prefix, CharSequence suffix) {
+            return this.descriptors
+                .map(Descriptor::description)
+                .map(Object::toString).collect(Collectors.joining(delimiter, prefix, suffix));
         }
 
         @Override

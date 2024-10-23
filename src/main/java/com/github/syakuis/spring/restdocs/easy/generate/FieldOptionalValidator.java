@@ -133,6 +133,10 @@ public class FieldOptionalValidator {
      * @return true if the field has a validation constraint, false otherwise
      */
     public boolean hasValidationConstraint(Field field) {
+        if (field == null) {
+            return false;
+        }
+
         Annotation[] annotations = field.getAnnotations();
 
         for (Annotation annotation : annotations) {

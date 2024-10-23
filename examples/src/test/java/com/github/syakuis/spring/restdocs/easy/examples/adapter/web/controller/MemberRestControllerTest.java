@@ -55,7 +55,7 @@ class MemberRestControllerTest {
                 restDocs.params()
                     .add("name", "stela")
                     .add("age", "age")
-                    .add("job", "job")
+                    .add("job", restDocs.generate(Job.class).join())
                     .queryParameters(),
 
                 restDocs.generate(MemberResponse.class).responseFields("[].")

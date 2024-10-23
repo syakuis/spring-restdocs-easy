@@ -1,5 +1,7 @@
 package com.github.syakuis.spring.restdocs.easy.core;
 
+import org.springframework.util.StringUtils;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -77,6 +79,21 @@ public final class DataClassLoader {
         TriPredicate<Class<?>, String, Class<?>> isGetter = targetClass.isRecord() ?
             this::isRecordGetter :
             this::isGetter;
+
+        if (targetClass.isEnum()) {
+            return List.of(
+                new DataClassMetadata(
+                    packageName,
+                    className,
+                    StringUtils.uncapitalize(className),
+                    name,
+                    canonicalName,
+                    targetClass,
+                    targetClass,
+                    null,
+                    null)
+            );
+        }
 
         return Arrays.stream(fields)
             .filter(field -> field.getType().isEnum() || isGetter.test(targetClass, field.getName(), field.getType()))

@@ -78,6 +78,9 @@ public interface RestDocs {
         List<HeaderDescriptor> toHeader();
         List<CookieDescriptor> toCookie();
         List<Descriptor> toList();
+        String join();
+        String join(CharSequence delimiter);
+        String join(CharSequence delimiter, CharSequence prefix, CharSequence suffix);
 
         /**
          * Creates a snippet for documenting URL path parameters.

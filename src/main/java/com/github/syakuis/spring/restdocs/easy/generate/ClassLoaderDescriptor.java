@@ -63,6 +63,17 @@ public class ClassLoaderDescriptor extends AbstractDescriptor {
      * @return A Descriptor object representing the field
      */
     private Descriptor buildDescriptor(DataClassMetadata fieldMetadata, boolean hasConstraints, FieldOptionalValidator fieldOptionalValidator) {
+        if (fieldMetadata.target().isEnum()) {
+            return Descriptor.builder()
+                .name(fieldMetadata.fieldName())
+                .type(JsonFieldTypeMapper.get(fieldMetadata.fieldType()))
+                .description(super.getMessage(fieldMetadata))
+                .optional(false)
+                .ignore(false)
+                .attributes(new Attributes.Attribute[0])
+                .build();
+        }
+
         return Descriptor.builder()
             .name(fieldMetadata.fieldName())
             .type(JsonFieldTypeMapper.get(fieldMetadata.fieldType()))
