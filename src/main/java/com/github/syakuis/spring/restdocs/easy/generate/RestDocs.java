@@ -28,6 +28,7 @@ public interface RestDocs {
      */
     HeadersGenerator headers();
     ParamsGenerator params();
+    DescriptorGenerator descriptors();
     Operator generate(Class<?> targetClass);
 
     /**
@@ -84,7 +85,7 @@ public interface RestDocs {
 
         /**
          * Creates a snippet for documenting URL path parameters.
-         * Example: /api/users/{id} where {id} is a path parameter
+         * Example: {@code /api/users/{id} where {id}} is a path parameter
          *
          * @return A snippet for path parameters documentation
          * @see org.springframework.restdocs.request.RequestDocumentation#pathParameters
@@ -93,7 +94,7 @@ public interface RestDocs {
 
         /**
          * Creates a snippet for documenting URL query parameters.
-         * Example: /api/users?page=1&size=10 where page and size are query parameters
+         * Example: {@code /api/users?page=1&size=10} where page and size are query parameters
          *
          * @return A snippet for query parameters documentation
          * @see org.springframework.restdocs.request.RequestDocumentation#queryParameters

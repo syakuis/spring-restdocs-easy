@@ -19,7 +19,7 @@ import java.util.Map;
  * @see org.springframework.restdocs.headers.HeaderDocumentation
  */
 public class DefaultHeadersGenerator implements HeadersGenerator {
-    private final Map<String, String> headers = new LinkedHashMap<>();
+    private final Map<String, String> descriptors = new LinkedHashMap<>();
 
     private void validHeaderName(String headerName) {
         if (headerName == null || headerName.isBlank()) {
@@ -28,7 +28,7 @@ public class DefaultHeadersGenerator implements HeadersGenerator {
     }
 
     /**
-     * Adds a header with its corresponding media type to the headers map.
+     * Adds a header with its corresponding media type to the descriptors map.
      * This method prepares the information needed to create a HeaderDescriptor using HeaderDocumentation.headerWithName().
      *
      * @param httpHeaders the header name, which can be any standard or custom HTTP header defined in Spring's HttpHeaders class.
@@ -44,7 +44,7 @@ public class DefaultHeadersGenerator implements HeadersGenerator {
     public HeadersGenerator add(String httpHeaders, MediaType mediaType) {
         validHeaderName(httpHeaders);
 
-        headers.put(httpHeaders, mediaType != null ? mediaType.toString() : null);
+        descriptors.put(httpHeaders, mediaType != null ? mediaType.toString() : null);
         return this;
     }
 
@@ -52,7 +52,7 @@ public class DefaultHeadersGenerator implements HeadersGenerator {
     public HeadersGenerator add(String httpHeaders, String description) {
         validHeaderName(httpHeaders);
 
-        headers.put(httpHeaders, description);
+        descriptors.put(httpHeaders, description);
         return this;
     }
 
@@ -72,7 +72,7 @@ public class DefaultHeadersGenerator implements HeadersGenerator {
     }
 
     /**
-     * Generates a DefaultOperator with the added headers.
+     * Generates a DefaultOperator with the added descriptors.
      * This method creates HeaderDescriptors that can be used with HeaderDocumentation.requestHeaders() or HeaderDocumentation.responseHeaders().
      *
      * @return a new instance of DefaultOperator with HeaderDescriptors created from the added headers
@@ -81,7 +81,7 @@ public class DefaultHeadersGenerator implements HeadersGenerator {
      */
     @Override
     public RestDocs.Operator generate() {
-        return new DefaultRestDocs.DefaultOperator(headers.entrySet().stream()
+        return new DefaultRestDocs.DefaultOperator(descriptors.entrySet().stream()
             .map(entry -> Descriptor.builder()
                 .name(entry.getKey())
                 .description(entry.getValue())

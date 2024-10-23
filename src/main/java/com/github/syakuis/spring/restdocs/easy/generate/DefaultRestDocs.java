@@ -56,6 +56,11 @@ class DefaultRestDocs implements RestDocs {
         return new DefaultParamsGenerator();
     }
 
+    @Override
+    public DescriptorGenerator descriptors() {
+        return new DefaultDescriptorGenerator();
+    }
+
     /**
      * Generates an Operator for the specified target class.
      *

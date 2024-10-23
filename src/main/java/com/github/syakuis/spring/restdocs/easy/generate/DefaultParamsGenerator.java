@@ -20,7 +20,7 @@ import java.util.Set;
  * @see org.springframework.restdocs.request.RequestDocumentation
  */
 public class DefaultParamsGenerator implements ParamsGenerator {
-    private final Set<Descriptor> params = new HashSet<>();
+    private final Set<Descriptor> descriptors = new HashSet<>();
 
     /**
      * Validates the parameter name before creating a descriptor.
@@ -76,7 +76,7 @@ public class DefaultParamsGenerator implements ParamsGenerator {
     @Override
     public ParamsGenerator add(String name, String description, JsonFieldType type, boolean optional) {
         validParamName(name);
-        params.add(Descriptor.builder()
+        descriptors.add(Descriptor.builder()
             .name(name)
             .description(description)
             .type(type)
@@ -92,7 +92,7 @@ public class DefaultParamsGenerator implements ParamsGenerator {
      */
     @Override
     public ParamsGenerator add(Descriptor descriptor) {
-        params.add(descriptor);
+        descriptors.add(descriptor);
         return this;
     }
 
@@ -123,6 +123,6 @@ public class DefaultParamsGenerator implements ParamsGenerator {
      */
     @Override
     public RestDocs.Operator generate() {
-        return new DefaultRestDocs.DefaultOperator(params.stream().toList());
+        return new DefaultRestDocs.DefaultOperator(descriptors.stream().toList());
     }
 }
