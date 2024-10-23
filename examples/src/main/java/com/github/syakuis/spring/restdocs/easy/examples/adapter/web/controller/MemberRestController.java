@@ -24,7 +24,10 @@ import java.util.List;
 @Validated
 public class MemberRestController {
     @GetMapping
-    List<MemberResponse> list() {
+    List<MemberResponse> list(
+        @RequestParam(name = "name", required = false) String name,
+        @RequestParam(name = "age", required = false) Integer age,
+        @RequestParam(name = "job", required = false) Job job) {
         return List.of(
             new MemberResponse(699L, "Name_wusha", 81, Job.ENGINEER, "email_bdifzyt@example.com", true,
                 List.of("tag_urx", "tag_rvq", "tag_pta", "tag_jtp"),
@@ -37,7 +40,7 @@ public class MemberRestController {
 
     @GetMapping("/{id}")
     MemberResponse view(@PathVariable("id") long id) {
-        return new MemberResponse(953L, "Name_muzsn", 40, Job.ENGINEER, "email_vwhvdhl@example.com", false,
+        return new MemberResponse(id, "Name_muzsn", 40, Job.ENGINEER, "email_vwhvdhl@example.com", false,
             List.of("tag_fjv", "tag_hyk", "tag_enr", "tag_qtp"),
             new LocationAddress("Street_qqsxz", "City_iidcg", "Country_ylsoa"));
     }

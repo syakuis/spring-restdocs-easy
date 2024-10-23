@@ -45,6 +45,16 @@ class DefaultRestDocs implements RestDocs {
         this.messageSource = messageSource;
     }
 
+    @Override
+    public HeadersGenerator headers() {
+        return new DefaultHeadersGenerator();
+    }
+
+    @Override
+    public ParamsGenerator params() {
+        return new DefaultParamsGenerator();
+    }
+
     /**
      * Generates an Operator for the specified target class.
      *
