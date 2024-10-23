@@ -13,7 +13,7 @@ import java.util.Set;
  * @author Seok Kyun. Choi.
  * @since 2024-10-23
  */
-public class DefaultDescriptorGenerator extends DescriptorMessageSourceAccessor  implements DescriptorGenerator{
+public class DefaultDescriptorGenerator extends DescriptionMessageSource implements DescriptorGenerator{
     private final Set<Descriptor> descriptors = new HashSet<>();
 
     public DefaultDescriptorGenerator(MessageSource messageSource) {

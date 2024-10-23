@@ -19,7 +19,7 @@ import java.util.Map;
  * @since 2024-10-23
  * @see org.springframework.restdocs.headers.HeaderDocumentation
  */
-public class DefaultHeadersGenerator extends DescriptorMessageSourceAccessor implements HeadersGenerator {
+public class DefaultHeadersGenerator extends DescriptionMessageSource implements HeadersGenerator {
     private final Map<String, String> descriptors = new LinkedHashMap<>();
 
     public DefaultHeadersGenerator(MessageSource messageSource) {

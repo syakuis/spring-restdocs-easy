@@ -14,7 +14,7 @@ import java.util.List;
  * @author Seok Kyun. Choi.
  * @since 2024-10-18
  */
-public class ClassLoaderDescriptor extends AbstractDescriptor {
+public class ClassLoaderDescriptor extends AbstractConstraintDescriptions {
     private final Class<?> targetClass;
 
     /**

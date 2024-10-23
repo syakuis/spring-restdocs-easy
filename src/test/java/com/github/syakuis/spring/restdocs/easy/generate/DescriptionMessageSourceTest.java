@@ -21,16 +21,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Slf4j
 @WebMvcTest
 @Import({MessageSourceAutoConfiguration.class})
-class DescriptorMessageSourceAccessorTest {
+class DescriptionMessageSourceTest {
 
     @Autowired
     private MessageSource messageSource;
 
-    private DescriptorMessageSourceAccessor descriptorMessageSourceAccessor;
+    private DescriptionMessageSource descriptionMessageSource;
 
     @BeforeEach
     void init() {
-        this.descriptorMessageSourceAccessor = new DescriptorMessageSourceAccessor(messageSource);
+        this.descriptionMessageSource = new DescriptionMessageSource(messageSource);
     }
 
     @Test
@@ -39,7 +39,7 @@ class DescriptorMessageSourceAccessorTest {
         var dataClassMetadata = dataClassLoader.toList();
 
         dataClassMetadata.forEach(it -> {
-            var message = descriptorMessageSourceAccessor.getMessage(it);
+            var message = descriptionMessageSource.getMessage(it);
 
             if (Objects.equals("name", it.fieldName())) {
                 assertEquals("테스트", message);
