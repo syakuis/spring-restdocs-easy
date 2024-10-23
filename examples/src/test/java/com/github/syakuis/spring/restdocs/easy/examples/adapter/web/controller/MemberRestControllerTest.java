@@ -46,6 +46,7 @@ class MemberRestControllerTest {
                 .param("name", "stela")
                 .param("age", "10")
                 .param("job", "ENGINEER")
+                .param("email", "email@email.com")
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andDo(document(RESTDOCS_PATH,
@@ -53,9 +54,10 @@ class MemberRestControllerTest {
                 restDocs.headers().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON).responseHeaders(),
 
                 restDocs.params()
-                    .add("name", "stela")
-                    .add("age", "age")
+                    .add("name", "name parameter")
+                    .add("age", "{com.github.syakuis.spring.restdocs.easy.examples.adapter.web.controller.model.MemberRequest.age}")
                     .add("job", restDocs.generate(Job.class).join())
+                    .add("email", "{email}")
                     .queryParameters(),
 
                 restDocs.generate(MemberResponse.class).responseFields("[].")
@@ -84,10 +86,13 @@ class MemberRestControllerTest {
 
         mockMvc.perform(post("/members")
                 .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, "")
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
             .andDo(document(RESTDOCS_PATH,
-                restDocs.headers().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON).requestHeaders(),
+                restDocs.headers().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                    .add(HttpHeaders.AUTHORIZATION, "{http.headers.authorization.BASIC_AUTHORIZATION}")
+                    .requestHeaders(),
 
                 restDocs.generate(MemberRequest.class).requestFields()
                     .andWithPrefix("locationAddress.", restDocs.generate(LocationAddress.class).toField()),

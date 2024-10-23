@@ -1,5 +1,6 @@
 package com.github.syakuis.spring.restdocs.easy.generate;
 
+import org.springframework.context.MessageSource;
 import org.springframework.restdocs.payload.JsonFieldType;
 
 import java.util.HashSet;
@@ -12,8 +13,12 @@ import java.util.Set;
  * @author Seok Kyun. Choi.
  * @since 2024-10-23
  */
-public class DefaultDescriptorGenerator implements DescriptorGenerator {
+public class DefaultDescriptorGenerator extends DescriptorMessageSourceAccessor  implements DescriptorGenerator{
     private final Set<Descriptor> descriptors = new HashSet<>();
+
+    public DefaultDescriptorGenerator(MessageSource messageSource) {
+        super(messageSource);
+    }
 
     /**
      * Validates that the field name is not null or blank.
@@ -74,6 +79,6 @@ public class DefaultDescriptorGenerator implements DescriptorGenerator {
 
     @Override
     public RestDocs.Operator generate() {
-        return new DefaultRestDocs.DefaultOperator(descriptors.stream().toList());
+        return new DefaultRestDocs.DefaultOperator(descriptors.stream().map(it -> it.description(getMessageByExpression(it.description()))).toList());
     }
 }

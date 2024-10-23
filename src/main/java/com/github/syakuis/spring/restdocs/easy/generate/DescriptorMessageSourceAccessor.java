@@ -6,6 +6,7 @@ import org.springframework.context.MessageSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * Retrieves messages for fields, including enum constants, from a MessageSource.
@@ -13,6 +14,7 @@ import java.util.Locale;
  * @author Seok Kyun. Choi.
  * @since 2024-01-12
  */
+// todo rename AbstractDescriptorMessageSource
 public class DescriptorMessageSourceAccessor {
     private final MessageSource messageSource;
 
@@ -116,7 +118,26 @@ public class DescriptorMessageSourceAccessor {
      * @param defaultMessage The default message if no code is found.
      * @return The resolved message or the default message if not found.
      */
+    // todo rename getMessageOrDefault
     private String resolveMessageOrDefault(String code, String defaultMessage) {
         return messageSource.getMessage(code, null, defaultMessage, Locale.getDefault());
+    }
+
+    public String getMessageByExpression(Object expression) {
+        return getMessageByExpression(expression, String.valueOf(expression));
+    }
+
+    public String getMessageByExpression(Object expression, String defaultMessage) {
+        if (expression == null) {
+            return defaultMessage;
+        }
+
+        String newExpression = String.valueOf(expression);
+        if (newExpression.startsWith("{") && newExpression.endsWith("}")) {
+            String code = newExpression.substring(1, newExpression.length() - 1);
+            return resolveMessageOrDefault(code, defaultMessage);
+        }
+
+        return Objects.toString(expression, defaultMessage);
     }
 }

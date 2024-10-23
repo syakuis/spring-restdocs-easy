@@ -1,5 +1,6 @@
 package com.github.syakuis.spring.restdocs.easy.generate;
 
+import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.headers.HeaderDescriptor;
 import org.springframework.restdocs.headers.RequestHeadersSnippet;
@@ -18,8 +19,12 @@ import java.util.Map;
  * @since 2024-10-23
  * @see org.springframework.restdocs.headers.HeaderDocumentation
  */
-public class DefaultHeadersGenerator implements HeadersGenerator {
+public class DefaultHeadersGenerator extends DescriptorMessageSourceAccessor implements HeadersGenerator {
     private final Map<String, String> descriptors = new LinkedHashMap<>();
+
+    public DefaultHeadersGenerator(MessageSource messageSource) {
+        super(messageSource);
+    }
 
     private void validHeaderName(String headerName) {
         if (headerName == null || headerName.isBlank()) {
@@ -84,7 +89,7 @@ public class DefaultHeadersGenerator implements HeadersGenerator {
         return new DefaultRestDocs.DefaultOperator(descriptors.entrySet().stream()
             .map(entry -> Descriptor.builder()
                 .name(entry.getKey())
-                .description(entry.getValue())
+                .description(getMessageByExpression(entry.getValue()))
                 .build()).toList());
     }
 }

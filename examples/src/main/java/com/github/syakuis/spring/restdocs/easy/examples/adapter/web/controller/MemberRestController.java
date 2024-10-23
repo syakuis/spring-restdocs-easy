@@ -26,6 +26,7 @@ public class MemberRestController {
     @GetMapping
     List<MemberResponse> list(
         @RequestParam(name = "name", required = false) String name,
+        @RequestParam(name = "email", required = false) String email,
         @RequestParam(name = "age", required = false) Integer age,
         @RequestParam(name = "job", required = false) Job job) {
         return List.of(

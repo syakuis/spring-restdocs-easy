@@ -2,6 +2,10 @@ package com.github.syakuis.spring.restdocs.easy.generate;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.MessageSource;
 import org.springframework.restdocs.payload.JsonFieldType;
 
 import java.util.List;
@@ -13,12 +17,16 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Seok Kyun. Choi.
  * @since 2024-10-23
  */
+@ExtendWith(MockitoExtension.class)
 class DefaultDescriptorGeneratorTest {
+    @Mock
+    private MessageSource messageSource;
+
     @Test
     @DisplayName("이름과 설명으로 Descriptor를 생성한다")
     void add_WithNameAndDescription() {
         // given
-        DescriptorGenerator generator = new DefaultDescriptorGenerator();
+        DescriptorGenerator generator = new DefaultDescriptorGenerator(messageSource);
 
         // when
         generator.add("name", "description");
@@ -37,7 +45,7 @@ class DefaultDescriptorGeneratorTest {
     @DisplayName("이름, 설명, 타입으로 Descriptor를 생성한다")
     void add_WithNameDescriptionAndType() {
         // given
-        DescriptorGenerator generator = new DefaultDescriptorGenerator();
+        DescriptorGenerator generator = new DefaultDescriptorGenerator(messageSource);
 
         // when
         generator.add("name", "description", JsonFieldType.NUMBER);
@@ -56,7 +64,7 @@ class DefaultDescriptorGeneratorTest {
     @DisplayName("모든 속성을 지정하여 Descriptor를 생성한다")
     void add_WithAllProperties() {
         // given
-        DescriptorGenerator generator = new DefaultDescriptorGenerator();
+        DescriptorGenerator generator = new DefaultDescriptorGenerator(messageSource);
 
         // when
         generator.add("name", "description", JsonFieldType.BOOLEAN, true);
@@ -75,7 +83,7 @@ class DefaultDescriptorGeneratorTest {
     @DisplayName("미리 생성된 Descriptor를 추가한다")
     void add_WithPrebuiltDescriptor() {
         // given
-        DescriptorGenerator generator = new DefaultDescriptorGenerator();
+        DescriptorGenerator generator = new DefaultDescriptorGenerator(messageSource);
         Descriptor prebuiltDescriptor = Descriptor.builder()
             .name("name")
             .description("description")
@@ -100,7 +108,7 @@ class DefaultDescriptorGeneratorTest {
     @DisplayName("여러 개의 Descriptor를 추가할 수 있다")
     void add_MultipleDescriptors() {
         // given
-        DescriptorGenerator generator = new DefaultDescriptorGenerator();
+        DescriptorGenerator generator = new DefaultDescriptorGenerator(messageSource);
 
         // when
         generator.add("name1", "description1")
@@ -119,7 +127,7 @@ class DefaultDescriptorGeneratorTest {
     @DisplayName("name이 null이면 예외가 발생한다")
     void add_WithNullName() {
         // given
-        DescriptorGenerator generator = new DefaultDescriptorGenerator();
+        DescriptorGenerator generator = new DefaultDescriptorGenerator(messageSource);
 
         // when, then
         assertThatThrownBy(() -> generator.add(null, "description"))
@@ -131,7 +139,7 @@ class DefaultDescriptorGeneratorTest {
     @DisplayName("name이 빈 문자열이면 예외가 발생한다")
     void add_WithBlankName() {
         // given
-        DescriptorGenerator generator = new DefaultDescriptorGenerator();
+        DescriptorGenerator generator = new DefaultDescriptorGenerator(messageSource);
 
         // when, then
         assertThatThrownBy(() -> generator.add("  ", "description"))

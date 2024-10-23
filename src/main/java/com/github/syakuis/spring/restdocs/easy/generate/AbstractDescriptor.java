@@ -12,6 +12,7 @@ import static org.springframework.restdocs.snippet.Attributes.key;
  * @author Seok Kyun. Choi.
  * @since 2024-10-18
  */
+// todo rename AbstractConstraintDescriptions
 abstract class AbstractDescriptor extends DescriptorMessageSourceAccessor {
     private final ConstraintDescriptions constraintDescriptions;
 

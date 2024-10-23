@@ -48,17 +48,17 @@ class DefaultRestDocs implements RestDocs {
 
     @Override
     public HeadersGenerator headers() {
-        return new DefaultHeadersGenerator();
+        return new DefaultHeadersGenerator(messageSource);
     }
 
     @Override
     public ParamsGenerator params() {
-        return new DefaultParamsGenerator();
+        return new DefaultParamsGenerator(messageSource);
     }
 
     @Override
     public DescriptorGenerator descriptors() {
-        return new DefaultDescriptorGenerator();
+        return new DefaultDescriptorGenerator(messageSource);
     }
 
     /**

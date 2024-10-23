@@ -24,8 +24,7 @@ class DefaultHeadersGeneratorTest {
 
     @Test
     void testHeadersGenerator() {
-        DefaultRestDocs restDocs = new DefaultRestDocs(messageSource);
-        HeadersGenerator headerGenerator = restDocs.headers();
+        HeadersGenerator headerGenerator = new DefaultHeadersGenerator(messageSource);
 
         headerGenerator.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
         headerGenerator.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML);

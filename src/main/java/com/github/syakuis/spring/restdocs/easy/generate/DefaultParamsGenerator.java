@@ -1,5 +1,6 @@
 package com.github.syakuis.spring.restdocs.easy.generate;
 
+import org.springframework.context.MessageSource;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.restdocs.request.FormParametersSnippet;
 import org.springframework.restdocs.request.ParameterDescriptor;
@@ -19,8 +20,12 @@ import java.util.Set;
  * @since 2024-10-23
  * @see org.springframework.restdocs.request.RequestDocumentation
  */
-public class DefaultParamsGenerator implements ParamsGenerator {
+public class DefaultParamsGenerator extends DescriptorMessageSourceAccessor implements ParamsGenerator {
     private final Set<Descriptor> descriptors = new HashSet<>();
+
+    public DefaultParamsGenerator(MessageSource messageSource) {
+        super(messageSource);
+    }
 
     /**
      * Validates the parameter name before creating a descriptor.
@@ -123,6 +128,6 @@ public class DefaultParamsGenerator implements ParamsGenerator {
      */
     @Override
     public RestDocs.Operator generate() {
-        return new DefaultRestDocs.DefaultOperator(descriptors.stream().toList());
+        return new DefaultRestDocs.DefaultOperator(descriptors.stream().map(it -> it.description(getMessageByExpression(it.description()))).toList());
     }
 }
