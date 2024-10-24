@@ -57,8 +57,8 @@ class DefaultRestDocs implements RestDocs {
     }
 
     @Override
-    public DescriptorGenerator descriptors() {
-        return new DefaultDescriptorGenerator(messageSource);
+    public DescriptorsGenerator descriptors() {
+        return new DefaultDescriptorsGenerator(messageSource);
     }
 
     /**
@@ -69,7 +69,7 @@ class DefaultRestDocs implements RestDocs {
      */
     @Override
     public Operator generate(Class<?> targetClass) {
-        return new DefaultOperator(new ClassLoaderDescriptor(messageSource, targetClass).generate());
+        return new DefaultOperator(new ClassDescriptorGenerator(messageSource, targetClass).generate());
     }
 
     /**

@@ -1,6 +1,6 @@
 package com.github.syakuis.spring.restdocs.easy.generate;
 
-import com.github.syakuis.spring.restdocs.easy.core.DataClassLoader;
+import com.github.syakuis.spring.restdocs.easy.core.ClassMetadataGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,17 +35,17 @@ class DescriptionMessageSourceTest {
 
     @Test
     void getMessage() {
-        var dataClassLoader = DataClassLoader.of(Sample.class);
+        var dataClassLoader = ClassMetadataGenerator.of(Sample.class);
         var dataClassMetadata = dataClassLoader.toList();
 
         dataClassMetadata.forEach(it -> {
             var message = descriptionMessageSource.getMessage(it);
 
-            if (Objects.equals("name", it.fieldName())) {
+            if (Objects.equals("name", it.name())) {
                 assertEquals("테스트", message);
-            } else if (Objects.equals("content", it.fieldName())) {
+            } else if (Objects.equals("content", it.name())) {
                 assertEquals("content", message);
-            } else if (Objects.equals("abc", it.fieldName())) {
+            } else if (Objects.equals("abc", it.name())) {
                 String text = """
                     abc
 
@@ -53,7 +53,7 @@ class DescriptionMessageSourceTest {
                     B +\s
                     C""";
                 assertEquals(text, message);
-            } else if (Objects.equals("sex", it.fieldName())) {
+            } else if (Objects.equals("sex", it.name())) {
                 String text = """
                     성별
 

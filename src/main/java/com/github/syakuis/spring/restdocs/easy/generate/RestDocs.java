@@ -28,7 +28,7 @@ public interface RestDocs {
      */
     HeadersGenerator headers();
     ParamsGenerator params();
-    DescriptorGenerator descriptors();
+    DescriptorsGenerator descriptors();
     Operator generate(Class<?> targetClass);
 
     /**

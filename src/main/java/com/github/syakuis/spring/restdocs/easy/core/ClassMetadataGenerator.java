@@ -12,10 +12,10 @@ import java.util.List;
  * @since 2024-06-16
  */
 // todo - add enum loader and various class types must be implemented as an abstract class
-public final class DataClassLoader {
+public final class ClassMetadataGenerator {
     private final Class<?> targetClass;
 
-    private DataClassLoader(Class<?> targetClass) {
+    private ClassMetadataGenerator(Class<?> targetClass) {
         this.targetClass = targetClass;
     }
 
@@ -68,7 +68,7 @@ public final class DataClassLoader {
      *
      * @return A list of field metadata
      */
-    public List<DataClassMetadata> toList() {
+    public List<ClassFieldMetadata> toList() {
         var packageName = targetClass.getPackageName();
         var className = targetClass.getSimpleName();
         var name = targetClass.getName();
@@ -82,7 +82,7 @@ public final class DataClassLoader {
 
         if (targetClass.isEnum()) {
             return List.of(
-                new DataClassMetadata(
+                new ClassFieldMetadata(
                     packageName,
                     className,
                     StringUtils.uncapitalize(className),
@@ -97,7 +97,7 @@ public final class DataClassLoader {
 
         return Arrays.stream(fields)
             .filter(field -> field.getType().isEnum() || isGetter.test(targetClass, field.getName(), field.getType()))
-            .map(field -> new DataClassMetadata(
+            .map(field -> new ClassFieldMetadata(
                 packageName,
                 className,
                 field.getName(),
@@ -110,7 +110,7 @@ public final class DataClassLoader {
             .toList();
     }
 
-    public static DataClassLoader of(Class<?> targetClass) {
-        return new DataClassLoader(targetClass);
+    public static ClassMetadataGenerator of(Class<?> targetClass) {
+        return new ClassMetadataGenerator(targetClass);
     }
 }

@@ -7,16 +7,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Default implementation of DescriptorGenerator.
+ * Default implementation of DescriptorsGenerator.
  * Manages a set of descriptors and provides methods to add and generate them.
  *
  * @author Seok Kyun. Choi.
  * @since 2024-10-23
  */
-public class DefaultDescriptorGenerator extends DescriptionMessageSource implements DescriptorGenerator{
+public class DefaultDescriptorsGenerator extends DescriptionMessageSource implements DescriptorsGenerator {
     private final Set<Descriptor> descriptors = new HashSet<>();
 
-    public DefaultDescriptorGenerator(MessageSource messageSource) {
+    public DefaultDescriptorsGenerator(MessageSource messageSource) {
         super(messageSource);
     }
 
@@ -37,7 +37,7 @@ public class DefaultDescriptorGenerator extends DescriptionMessageSource impleme
      * Creates a descriptor with default STRING type and not optional.
      */
     @Override
-    public DescriptorGenerator add(String name, String description) {
+    public DescriptorsGenerator add(String name, String description) {
         add(name, description, JsonFieldType.STRING, false);
         return this;
     }
@@ -47,7 +47,7 @@ public class DefaultDescriptorGenerator extends DescriptionMessageSource impleme
      * Creates a descriptor with specified type and not optional.
      */
     @Override
-    public DescriptorGenerator add(String name, String description, JsonFieldType type) {
+    public DescriptorsGenerator add(String name, String description, JsonFieldType type) {
         add(name, description, type, false);
         return this;
     }
@@ -57,7 +57,7 @@ public class DefaultDescriptorGenerator extends DescriptionMessageSource impleme
      * Creates and adds a descriptor with complete specifications.
      */
     @Override
-    public DescriptorGenerator add(String name, String description, JsonFieldType type, boolean optional) {
+    public DescriptorsGenerator add(String name, String description, JsonFieldType type, boolean optional) {
         validName(name);
         descriptors.add(Descriptor.builder()
             .name(name)
@@ -72,7 +72,7 @@ public class DefaultDescriptorGenerator extends DescriptionMessageSource impleme
      * Adds a pre-built descriptor to the set.
      */
     @Override
-    public DescriptorGenerator add(Descriptor descriptor) {
+    public DescriptorsGenerator add(Descriptor descriptor) {
         descriptors.add(descriptor);
         return this;
     }

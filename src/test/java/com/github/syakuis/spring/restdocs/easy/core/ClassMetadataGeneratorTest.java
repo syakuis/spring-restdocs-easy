@@ -18,31 +18,31 @@ import static org.junit.jupiter.api.Assertions.*;
  * @since 2024-10-18
  */
 @Slf4j
-class DataClassLoaderTest {
+class ClassMetadataGeneratorTest {
     @Test
     void shouldLoadFieldsFromAbstractClass() {
-        List<DataClassMetadata> metadata = DataClassLoader.of(AbstractAddress.class).toList();
+        List<ClassFieldMetadata> metadata = ClassMetadataGenerator.of(AbstractAddress.class).toList();
         List<String> fieldNames = metadata.stream()
-            .map(DataClassMetadata::fieldName).toList();
+            .map(ClassFieldMetadata::name).toList();
 
         assertEquals(List.of("zipcode"), fieldNames);
     }
 
     @Test
     void shouldLoadEnumClass() {
-        List<DataClassMetadata> metadata = DataClassLoader.of(Sex.class).toList();
-        var dataClassMetadata = metadata.stream().filter(it -> Objects.equals("sex", it.fieldName()))
+        List<ClassFieldMetadata> metadata = ClassMetadataGenerator.of(Sex.class).toList();
+        var dataClassMetadata = metadata.stream().filter(it -> Objects.equals("sex", it.name()))
             .findFirst().orElseThrow();
 
-        assertEquals("sex", dataClassMetadata.fieldName());
+        assertEquals("sex", dataClassMetadata.name());
     }
 
     @Test
     void shouldLoadFieldsFromUserClass() {
-        List<DataClassMetadata> metadata = DataClassLoader.of(User.class).toList();
+        List<ClassFieldMetadata> metadata = ClassMetadataGenerator.of(User.class).toList();
 
         List<String> fieldNames = metadata.stream()
-            .map(DataClassMetadata::fieldName)
+            .map(ClassFieldMetadata::name)
             .toList();
 
         assertFalse(fieldNames.contains("CONSTANT"));
@@ -50,14 +50,15 @@ class DataClassLoaderTest {
         assertTrue(fieldNames.contains("name"));
         assertTrue(fieldNames.contains("username"));
 
-        DataClassMetadata usernameMetadata = metadata.stream()
-            .filter(m -> "username".equals(m.fieldName()))
+        ClassFieldMetadata usernameMetadata = metadata.stream()
+            .filter(m -> "username".equals(m.name()))
             .findFirst()
             .orElseThrow(() -> new AssertionError("Username field not found"));
 
         assertNotNull(usernameMetadata);
         assertNotEquals(0, usernameMetadata.annotations().length);
-        assertEquals("com.github.syakuis.spring.restdocs.easy.core.DataClassLoaderTest$User.username", usernameMetadata.name() + "." + usernameMetadata.fieldName());
+        assertEquals("com.github.syakuis.spring.restdocs.easy.core.ClassMetadataGeneratorTest$User.username",
+            usernameMetadata.packageClassName() + "." + usernameMetadata.name());
 
         boolean hasNotNullAnnotation = Arrays.stream(usernameMetadata.annotations())
             .anyMatch(annotation -> annotation.annotationType().equals(NotNull.class));

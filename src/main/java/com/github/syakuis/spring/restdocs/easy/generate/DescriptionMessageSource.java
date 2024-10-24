@@ -1,6 +1,6 @@
 package com.github.syakuis.spring.restdocs.easy.generate;
 
-import com.github.syakuis.spring.restdocs.easy.core.DataClassMetadata;
+import com.github.syakuis.spring.restdocs.easy.core.ClassFieldMetadata;
 import org.springframework.context.MessageSource;
 
 import java.util.ArrayList;
@@ -36,38 +36,38 @@ public class DescriptionMessageSource {
      * Retrieves the message for a field described by DataClassMetadata.
      * If the field is an enum, it fetches messages for each enum constant as well.
      *
-     * @param dataClassMetadata Metadata representing the field.
+     * @param classFieldMetadata Metadata representing the field.
      * @return The resolved message or formatted enum constant messages.
      */
-    public String getMessage(DataClassMetadata dataClassMetadata) {
-        return isEnumField(dataClassMetadata)
-            ? getEnumMessages(dataClassMetadata)
-            : getMessageForCode(dataClassMetadata.name() + "." + dataClassMetadata.fieldName(), dataClassMetadata.fieldName());
+    public String getMessage(ClassFieldMetadata classFieldMetadata) {
+        return isEnumField(classFieldMetadata)
+            ? getEnumMessages(classFieldMetadata)
+            : getMessageForCode(classFieldMetadata.packageClassName() + "." + classFieldMetadata.name(), classFieldMetadata.name());
     }
 
     /**
      * Checks if the field type in DataClassMetadata is an enum.
      *
-     * @param dataClassMetadata Metadata representing the field.
+     * @param classFieldMetadata Metadata representing the field.
      * @return true if the field is an enum, false otherwise.
      */
-    private boolean isEnumField(DataClassMetadata dataClassMetadata) {
-        return Enum.class.isAssignableFrom(dataClassMetadata.fieldType());
+    private boolean isEnumField(ClassFieldMetadata classFieldMetadata) {
+        return Enum.class.isAssignableFrom(classFieldMetadata.type());
     }
 
     /**
      * Retrieves messages for an enum field, including a message for each enum constant.
      *
-     * @param dataClassMetadata Metadata representing the enum field.
+     * @param classFieldMetadata Metadata representing the enum field.
      * @return The formatted messages for the enum and its constants.
      */
-    private String getEnumMessages(DataClassMetadata dataClassMetadata) {
-        String baseMessage = getMessageForCode(dataClassMetadata.name() + "." + dataClassMetadata.fieldName(), dataClassMetadata.fieldName());
+    private String getEnumMessages(ClassFieldMetadata classFieldMetadata) {
+        String baseMessage = getMessageForCode(classFieldMetadata.packageClassName() + "." + classFieldMetadata.name(), classFieldMetadata.name());
 
         List<String> enumMessages = new ArrayList<>();
-        for (Object enumConstant : dataClassMetadata.fieldType().getEnumConstants()) {
+        for (Object enumConstant : classFieldMetadata.type().getEnumConstants()) {
             String constantName = ((Enum<?>) enumConstant).name();
-            String constantMessage = getMessageForCode(dataClassMetadata.fieldType().getName() + "." + constantName, null);
+            String constantMessage = getMessageForCode(classFieldMetadata.type().getName() + "." + constantName, null);
             enumMessages.add(constantMessage != null ? constantName + " : " + constantMessage : constantName);
         }
 

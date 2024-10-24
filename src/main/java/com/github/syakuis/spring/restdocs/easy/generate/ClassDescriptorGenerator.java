@@ -1,7 +1,7 @@
 package com.github.syakuis.spring.restdocs.easy.generate;
 
-import com.github.syakuis.spring.restdocs.easy.core.DataClassLoader;
-import com.github.syakuis.spring.restdocs.easy.core.DataClassMetadata;
+import com.github.syakuis.spring.restdocs.easy.core.ClassMetadataGenerator;
+import com.github.syakuis.spring.restdocs.easy.core.ClassFieldMetadata;
 import org.springframework.context.MessageSource;
 import org.springframework.restdocs.snippet.Attributes;
 
@@ -11,10 +11,11 @@ import java.util.List;
 /**
  * Generates RestDocs descriptors for a given class type.
  * This class loads field metadata, validates fields, and constructs descriptor objects.
+ *
  * @author Seok Kyun. Choi.
  * @since 2024-10-18
  */
-public class ClassLoaderDescriptor extends AbstractConstraintDescriptions {
+public class ClassDescriptorGenerator extends AbstractConstraintDescriptions {
     private final Class<?> targetClass;
 
     /**
@@ -23,7 +24,7 @@ public class ClassLoaderDescriptor extends AbstractConstraintDescriptions {
      * @param messageSource MessageSource for resolving messages
      * @param targetClass   The class to generate descriptors for
      */
-    public ClassLoaderDescriptor(MessageSource messageSource, Class<?> targetClass) {
+    public ClassDescriptorGenerator(MessageSource messageSource, Class<?> targetClass) {
         super(messageSource, targetClass);
         this.targetClass = targetClass;
     }
@@ -50,8 +51,8 @@ public class ClassLoaderDescriptor extends AbstractConstraintDescriptions {
      *
      * @return A list of field metadata from the DataClassLoader
      */
-    private List<DataClassMetadata> loadFieldMetadata() {
-        return DataClassLoader.of(targetClass).toList();
+    private List<ClassFieldMetadata> loadFieldMetadata() {
+        return ClassMetadataGenerator.of(targetClass).toList();
     }
 
     /**
@@ -62,11 +63,11 @@ public class ClassLoaderDescriptor extends AbstractConstraintDescriptions {
      * @param fieldOptionalValidator Validator to check if the field is optional
      * @return A Descriptor object representing the field
      */
-    private Descriptor buildDescriptor(DataClassMetadata fieldMetadata, boolean hasConstraints, FieldOptionalValidator fieldOptionalValidator) {
+    private Descriptor buildDescriptor(ClassFieldMetadata fieldMetadata, boolean hasConstraints, FieldOptionalValidator fieldOptionalValidator) {
         if (fieldMetadata.target().isEnum()) {
             return Descriptor.builder()
-                .name(fieldMetadata.fieldName())
-                .type(JsonFieldTypeMapper.get(fieldMetadata.fieldType()))
+                .name(fieldMetadata.name())
+                .type(JsonFieldTypeMapper.get(fieldMetadata.type()))
                 .description(super.getMessage(fieldMetadata))
                 .optional(false)
                 .ignore(false)
@@ -75,12 +76,12 @@ public class ClassLoaderDescriptor extends AbstractConstraintDescriptions {
         }
 
         return Descriptor.builder()
-            .name(fieldMetadata.fieldName())
-            .type(JsonFieldTypeMapper.get(fieldMetadata.fieldType()))
+            .name(fieldMetadata.name())
+            .type(JsonFieldTypeMapper.get(fieldMetadata.type()))
             .description(super.getMessage(fieldMetadata))
             .optional(fieldOptionalValidator.isFieldOptional(fieldMetadata.field()))
             .ignore(false)
-            .attributes(hasConstraints ? super.getConstraints(fieldMetadata.fieldName()) : new Attributes.Attribute[0])
+            .attributes(hasConstraints ? super.getConstraints(fieldMetadata.name()) : new Attributes.Attribute[0])
             .build();
     }
 }
