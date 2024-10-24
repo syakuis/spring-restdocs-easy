@@ -5,7 +5,7 @@ import com.github.syakuis.spring.restdocs.easy.core.ClassMetadataGenerator;
 import org.springframework.context.MessageSource;
 import org.springframework.restdocs.snippet.Attributes;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -37,8 +37,8 @@ public class ClassDescriptorGenerator extends AbstractConstraintDescriptions {
      *
      * @return A list of descriptors representing each field of the target class
      */
-    public List<Descriptor> generate() {
-        FieldOptionalValidator fieldOptionalValidator = new FieldOptionalValidator(Collections.emptyList());
+    public List<Descriptor> generate(Class<?>... validGroups) {
+        FieldOptionalValidator fieldOptionalValidator = new FieldOptionalValidator(Arrays.stream(validGroups).toList());
 
         return loadFieldMetadata().stream().map(fieldMetadata -> {
                 boolean hasConstraints = fieldOptionalValidator.hasValidationConstraint(fieldMetadata.field());

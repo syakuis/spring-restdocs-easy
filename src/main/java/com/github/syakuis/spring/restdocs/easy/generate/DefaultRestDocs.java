@@ -71,7 +71,12 @@ class DefaultRestDocs implements RestDocs {
      */
     @Override
     public Operator generate(Class<?> targetClass) {
-        return new DefaultOperator(new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper, targetClass).generate());
+        return generate(targetClass, new Class<?>[0]);
+    }
+
+    @Override
+    public Operator generate(Class<?> targetClass, Class<?>... validGroups) {
+        return new DefaultOperator(new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper, targetClass).generate(validGroups));
     }
 
     /**
@@ -269,7 +274,7 @@ class DefaultRestDocs implements RestDocs {
 
         /**
          * Returns a string representation of all descriptor descriptions joined with a space delimiter.
-         * Equivalent to toString(" ").
+         * Equivalent to {@code join(" ")}.
          *
          * @return A string containing all descriptions separated by spaces
          */
@@ -280,7 +285,7 @@ class DefaultRestDocs implements RestDocs {
 
         /**
          * Returns a string representation of all descriptor descriptions joined with the specified delimiter.
-         * Equivalent to toString(delimiter, "", "").
+         * Equivalent to {@code join(delimiter, "", "")}.
          *
          * @param delimiter The character sequence to use as a delimiter between descriptions
          * @return A string containing all descriptions separated by the specified delimiter

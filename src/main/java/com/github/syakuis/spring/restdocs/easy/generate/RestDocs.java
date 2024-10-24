@@ -19,6 +19,7 @@ import java.util.List;
  * @author Seok Kyun. Choi.
  * @since 2024-10-22
  */
+// todo Caching the generated descriptor class.
 public interface RestDocs {
     /**
      * Creates a new HeaderGenerator instance.
@@ -26,9 +27,12 @@ public interface RestDocs {
      * @return a new HeaderGenerator for adding and managing HTTP headers
      */
     HeadersGenerator headers();
+    // todo validation and groups settings
     ParamsGenerator params();
+    // todo validation and groups  settings
     DescriptorsGenerator descriptors();
     Operator generate(Class<?> targetClass);
+    Operator generate(Class<?> targetClass, Class<?>... validGroups);
 
     /**
      * Provides a builder for creating RestDocs instances.

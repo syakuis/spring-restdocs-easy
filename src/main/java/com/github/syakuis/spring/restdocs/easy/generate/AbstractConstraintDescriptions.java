@@ -33,7 +33,7 @@ abstract class AbstractConstraintDescriptions extends DescriptionMessageSource {
      * @return An array of Attributes containing the field's validation constraints
      */
     protected Attributes.Attribute[] getConstraints(String fieldName) {
-        return new Attributes.Attribute[]{
+        return new Attributes.Attribute[] {
             key("constraints").value(String.join("\n\n", constraintDescriptions.descriptionsForProperty(fieldName)))
         };
     }
