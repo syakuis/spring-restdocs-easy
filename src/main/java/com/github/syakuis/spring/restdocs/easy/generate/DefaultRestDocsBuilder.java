@@ -12,7 +12,7 @@ import java.util.function.Consumer;
  */
 class DefaultRestDocsBuilder implements RestDocsBuilder {
     private MessageSource messageSource;
-    private JsonFieldTypeMapper jsonFieldTypeMapper;
+    private final JsonFieldTypeMapper jsonFieldTypeMapper = new JsonFieldTypeMapper();;
 
     @Override
     public RestDocsBuilder messageSource(MessageSource messageSource) {
@@ -22,7 +22,6 @@ class DefaultRestDocsBuilder implements RestDocsBuilder {
 
     @Override
     public RestDocsBuilder configure(Consumer<JsonFieldTypeMapper> config) {
-        jsonFieldTypeMapper = new JsonFieldTypeMapper();
         config.accept(jsonFieldTypeMapper);
         return this;
     }
