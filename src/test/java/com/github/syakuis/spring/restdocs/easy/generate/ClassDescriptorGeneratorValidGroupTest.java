@@ -33,10 +33,10 @@ class ClassDescriptorGeneratorValidGroupTest {
         // Given
         Class<?> targetClass = SampleClass.class;
 
-        ClassDescriptorGenerator classDescriptorGenerator = new ClassDescriptorGenerator(messageSource, new JsonFieldTypeMapper(), targetClass);
+        ClassDescriptorGenerator classDescriptorGenerator = new ClassDescriptorGenerator(messageSource, new JsonFieldTypeMapper());
 
         // When
-        List<Descriptor> descriptors = classDescriptorGenerator.generate(SampleClass.BasicValidation.class);
+        List<Descriptor> descriptors = classDescriptorGenerator.generate(targetClass, SampleClass.BasicValidation.class);
 
         descriptors.forEach(it -> {
             if (Objects.equals("name", it.name())) {

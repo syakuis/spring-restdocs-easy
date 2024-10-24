@@ -15,20 +15,21 @@ import java.util.List;
  * @author Seok Kyun. Choi.
  * @since 2024-10-18
  */
-public class ClassDescriptorGenerator extends AbstractConstraintDescriptions {
+public class ClassDescriptorGenerator extends DescriptionMessageSource {
     private final JsonFieldTypeMapper jsonFieldTypeMapper;
-    private final Class<?> targetClass;
 
     /**
      * Constructor to initialize the RestDocs generator with a message source and the target class.
      *
      * @param messageSource MessageSource for resolving messages
-     * @param targetClass   The class to generate descriptors for
      */
-    public ClassDescriptorGenerator(MessageSource messageSource, JsonFieldTypeMapper jsonFieldTypeMapper, Class<?> targetClass) {
-        super(messageSource, targetClass);
+    public ClassDescriptorGenerator(MessageSource messageSource, JsonFieldTypeMapper jsonFieldTypeMapper) {
+        super(messageSource);
         this.jsonFieldTypeMapper = jsonFieldTypeMapper;
-        this.targetClass = targetClass;
+    }
+
+    public List<Descriptor> generate(Class<?> targetClass, Class<?>... validGroups) {
+        return generate(null, targetClass, validGroups);
     }
 
     /**
@@ -37,24 +38,16 @@ public class ClassDescriptorGenerator extends AbstractConstraintDescriptions {
      *
      * @return A list of descriptors representing each field of the target class
      */
-    public List<Descriptor> generate(Class<?>... validGroups) {
+    public List<Descriptor> generate(String prefix, Class<?> targetClass, Class<?>... validGroups) {
+        ClassFieldConstraintDescriptions constraintDescriptions = new ClassFieldConstraintDescriptions(targetClass);
         FieldOptionalValidator fieldOptionalValidator = new FieldOptionalValidator(Arrays.stream(validGroups).toList());
 
-        return loadFieldMetadata().stream().map(fieldMetadata -> {
+        return ClassMetadataGenerator.of(targetClass).toList().stream().map(fieldMetadata -> {
                 boolean hasConstraints = fieldOptionalValidator.hasValidationConstraint(fieldMetadata.field());
 
-                return buildDescriptor(fieldMetadata, hasConstraints, fieldOptionalValidator);
+                return buildDescriptor(prefix, fieldMetadata, hasConstraints, fieldOptionalValidator, constraintDescriptions);
             }
         ).toList();
-    }
-
-    /**
-     * Loads the field metadata for the target class.
-     *
-     * @return A list of field metadata from the DataClassLoader
-     */
-    private List<ClassFieldMetadata> loadFieldMetadata() {
-        return ClassMetadataGenerator.of(targetClass).toList();
     }
 
     /**
@@ -65,9 +58,14 @@ public class ClassDescriptorGenerator extends AbstractConstraintDescriptions {
      * @param fieldOptionalValidator Validator to check if the field is optional
      * @return A Descriptor object representing the field
      */
-    private Descriptor buildDescriptor(ClassFieldMetadata fieldMetadata, boolean hasConstraints, FieldOptionalValidator fieldOptionalValidator) {
+    private Descriptor buildDescriptor(String prefix,
+                                       ClassFieldMetadata fieldMetadata,
+                                       boolean hasConstraints,
+                                       FieldOptionalValidator fieldOptionalValidator,
+                                       ClassFieldConstraintDescriptions constraintDescriptions) {
         if (fieldMetadata.target().isEnum()) {
             return Descriptor.builder()
+                .prefix(prefix)
                 .name(fieldMetadata.name())
                 .type(jsonFieldTypeMapper.get(fieldMetadata.type()))
                 .description(super.getMessage(fieldMetadata))
@@ -78,12 +76,13 @@ public class ClassDescriptorGenerator extends AbstractConstraintDescriptions {
         }
 
         return Descriptor.builder()
+            .prefix(prefix)
             .name(fieldMetadata.name())
             .type(jsonFieldTypeMapper.get(fieldMetadata.type()))
             .description(super.getMessage(fieldMetadata))
             .optional(fieldOptionalValidator.isFieldOptional(fieldMetadata.field()))
             .ignore(false)
-            .attributes(hasConstraints ? super.getConstraints(fieldMetadata.name()) : new Attributes.Attribute[0])
+            .attributes(hasConstraints ? constraintDescriptions.getConstraints(fieldMetadata.name()) : new Attributes.Attribute[0])
             .build();
     }
 }

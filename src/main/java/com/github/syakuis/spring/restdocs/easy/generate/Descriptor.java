@@ -17,6 +17,7 @@ import java.util.Objects;
 @Accessors(fluent = true)
 @Builder
 public class Descriptor {
+    private final String prefix;
     // Represents the name of the field.
     private final String name;
 

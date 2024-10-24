@@ -20,6 +20,7 @@ import java.util.Set;
  * @since 2024-10-23
  * @see org.springframework.restdocs.request.RequestDocumentation
  */
+// todo descriptor cache
 public class DefaultParamsGenerator extends DescriptionMessageSource implements ParamsGenerator {
     private final Set<Descriptor> descriptors = new HashSet<>();
 

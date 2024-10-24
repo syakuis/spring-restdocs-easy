@@ -15,10 +15,7 @@ import org.springframework.restdocs.hypermedia.LinksSnippet;
 import org.springframework.restdocs.payload.*;
 import org.springframework.restdocs.request.*;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -41,11 +38,11 @@ import static org.springframework.restdocs.request.RequestDocumentation.partWith
  */
 class DefaultRestDocs implements RestDocs {
     private final MessageSource messageSource;
-    private final JsonFieldTypeMapper jsonFieldTypeMapper;
+    private final ClassDescriptorGenerator classDescriptorGenerator;
 
     public DefaultRestDocs(MessageSource messageSource, JsonFieldTypeMapper jsonFieldTypeMapper) {
         this.messageSource = messageSource;
-        this.jsonFieldTypeMapper = jsonFieldTypeMapper;
+        this.classDescriptorGenerator = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper);
     }
 
     @Override
@@ -63,6 +60,10 @@ class DefaultRestDocs implements RestDocs {
         return new DefaultDescriptorsGenerator(messageSource);
     }
 
+    public Operator generate(Class<?> targetClass) {
+        return generate(targetClass, new Class<?>[0]);
+    }
+
     /**
      * Generates an Operator for the specified target class.
      *
@@ -70,13 +71,17 @@ class DefaultRestDocs implements RestDocs {
      * @return a new Operator instance
      */
     @Override
-    public Operator generate(Class<?> targetClass) {
-        return generate(targetClass, new Class<?>[0]);
+    public Operator generate(Class<?> targetClass, Class<?>... validGroups) {
+        return generate(null, targetClass, validGroups);
+    }
+
+    public Operator generate(String prefix, Class<?> targetClass) {
+        return generate(prefix, targetClass, new Class<?>[0]);
     }
 
     @Override
-    public Operator generate(Class<?> targetClass, Class<?>... validGroups) {
-        return new DefaultOperator(new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper, targetClass).generate(validGroups));
+    public Operator generate(String prefix, Class<?> targetClass, Class<?>... validGroups) {
+        return new DefaultOperator(classDescriptorGenerator.generate(prefix, targetClass, validGroups), classDescriptorGenerator);
     }
 
     /**
@@ -85,9 +90,27 @@ class DefaultRestDocs implements RestDocs {
      */
     static class DefaultOperator implements Operator {
         private Stream<Descriptor> descriptors;
+        private ClassDescriptorGenerator classDescriptorGenerator;
 
         public DefaultOperator(List<Descriptor> descriptors) {
             this.descriptors = descriptors.stream();
+        }
+
+        public DefaultOperator(List<Descriptor> descriptors, ClassDescriptorGenerator classDescriptorGenerator) {
+            this.descriptors = descriptors.stream();
+            this.classDescriptorGenerator = classDescriptorGenerator;
+        }
+
+        @Override
+        public Operator addAll(String prefix, Class<?> targetClass, Class<?>... validGroups) {
+            if (classDescriptorGenerator == null) {
+                throw new IllegalStateException("classDescriptorGenerator not set");
+            }
+
+            var data = new LinkedList<>(descriptors.toList());
+            data.addAll(classDescriptorGenerator.generate(prefix, targetClass, validGroups));
+            this.descriptors = data.stream();
+            return this;
         }
 
         /**
@@ -98,7 +121,13 @@ class DefaultRestDocs implements RestDocs {
          */
         @Override
         public Operator addAll(Descriptor... descriptor) {
-            this.descriptors = DescriptorCollector.merge(descriptors.toList(), Arrays.asList(descriptor)).stream();
+            addAll(Arrays.asList(descriptor));
+            return this;
+        }
+
+        @Override
+        public Operator addAll(List<Descriptor> descriptor) {
+            this.descriptors = DescriptorCollector.merge(descriptors.toList(), descriptor).stream();
             return this;
         }
 
@@ -190,22 +219,32 @@ class DefaultRestDocs implements RestDocs {
             return update(fieldNames, descriptor -> descriptor.optional(false));
         }
 
+        private String prefix(String prefix, String name) {
+            return prefix != null && !prefix.isBlank() ? prefix + name : name;
+        }
+
         @Override
         public List<FieldDescriptor> toField() {
             return this.descriptors.map(descriptor ->
-                updateFieldDescriptor(fieldWithPath(descriptor.name())).apply(descriptor)).toList();
+                updateFieldDescriptor(fieldWithPath(
+                    prefix(descriptor.prefix(), descriptor.name())
+                )).apply(descriptor)).toList();
         }
 
         @Override
         public List<SubsectionDescriptor> toSubsection() {
             return this.descriptors.map(descriptor ->
-                updateFieldDescriptor(subsectionWithPath(descriptor.name())).apply(descriptor)).toList();
+                updateFieldDescriptor(subsectionWithPath(
+                    prefix(descriptor.prefix(), descriptor.name())
+                )).apply(descriptor)).toList();
         }
 
         @Override
         public List<RequestPartDescriptor> toRequestPart() {
             return this.descriptors.map(descriptor -> {
-                RequestPartDescriptor newDescriptor = updateIgnorableDescriptor(partWithName(descriptor.name())).apply(descriptor);
+                RequestPartDescriptor newDescriptor = updateIgnorableDescriptor(partWithName(
+                    prefix(descriptor.prefix(), descriptor.name())
+                )).apply(descriptor);
 
                 if (descriptor.optional()) {
                     newDescriptor.optional();
@@ -218,7 +257,9 @@ class DefaultRestDocs implements RestDocs {
         @Override
         public List<ParameterDescriptor> toParameter() {
             return this.descriptors.map(descriptor -> {
-                ParameterDescriptor newDescriptor = updateIgnorableDescriptor(parameterWithName(descriptor.name())).apply(descriptor);
+                ParameterDescriptor newDescriptor = updateIgnorableDescriptor(parameterWithName(
+                    prefix(descriptor.prefix(), descriptor.name())
+                )).apply(descriptor);
 
                 if (descriptor.optional()) {
                     newDescriptor.optional();
@@ -231,7 +272,9 @@ class DefaultRestDocs implements RestDocs {
         @Override
         public List<LinkDescriptor> toLink() {
             return this.descriptors.map(descriptor -> {
-                LinkDescriptor newDescriptor = updateIgnorableDescriptor(linkWithRel(descriptor.name())).apply(descriptor);
+                LinkDescriptor newDescriptor = updateIgnorableDescriptor(linkWithRel(
+                    prefix(descriptor.prefix(), descriptor.name())
+                )).apply(descriptor);
 
                 if (descriptor.optional()) {
                     newDescriptor.optional();
@@ -244,7 +287,9 @@ class DefaultRestDocs implements RestDocs {
         @Override
         public List<HeaderDescriptor> toHeader() {
             return this.descriptors.map(descriptor -> {
-                HeaderDescriptor newDescriptor = updateDescriptor(headerWithName(descriptor.name())).apply(descriptor);
+                HeaderDescriptor newDescriptor = updateDescriptor(headerWithName(
+                    prefix(descriptor.prefix(), descriptor.name())
+                )).apply(descriptor);
 
                 if (descriptor.optional()) {
                     newDescriptor.optional();
@@ -257,7 +302,9 @@ class DefaultRestDocs implements RestDocs {
         @Override
         public List<CookieDescriptor> toCookie() {
             return this.descriptors.map(descriptor -> {
-                CookieDescriptor newDescriptor = updateIgnorableDescriptor(cookieWithName(descriptor.name())).apply(descriptor);
+                CookieDescriptor newDescriptor = updateIgnorableDescriptor(cookieWithName(
+                    prefix(descriptor.prefix(), descriptor.name())
+                )).apply(descriptor);
 
                 if (descriptor.optional()) {
                     newDescriptor.optional();
@@ -345,11 +392,6 @@ class DefaultRestDocs implements RestDocs {
         @Override
         public ResponseFieldsSnippet responseFields() {
             return PayloadDocumentation.responseFields(toField());
-        }
-
-        @Override
-        public ResponseFieldsSnippet responseFields(String prefix) {
-            return PayloadDocumentation.responseFields().andWithPrefix(prefix, toField());
         }
 
         @Override

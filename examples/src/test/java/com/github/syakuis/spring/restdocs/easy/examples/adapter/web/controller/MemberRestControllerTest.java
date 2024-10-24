@@ -60,8 +60,9 @@ class MemberRestControllerTest {
                     .add("email", "{email}")
                     .queryParameters(),
 
-                restDocs.generate(MemberResponse.class).responseFields("[].")
-                    .andWithPrefix("[].locationAddress.", restDocs.generate(LocationAddress.class).toField())
+                restDocs.generate("[].", MemberResponse.class)
+                    .addAll("[].locationAddress.", LocationAddress.class)
+                    .responseFields()
             ));
     }
 

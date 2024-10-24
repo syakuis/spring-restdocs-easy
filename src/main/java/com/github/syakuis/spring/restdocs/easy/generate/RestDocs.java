@@ -33,6 +33,8 @@ public interface RestDocs {
     DescriptorsGenerator descriptors();
     Operator generate(Class<?> targetClass);
     Operator generate(Class<?> targetClass, Class<?>... validGroups);
+    Operator generate(String prefix, Class<?> targetClass);
+    Operator generate(String prefix, Class<?> targetClass, Class<?>... validGroups);
 
     /**
      * Provides a builder for creating RestDocs instances.
@@ -44,6 +46,8 @@ public interface RestDocs {
     }
 
     interface Operator {
+        Operator addAll(String prefix, Class<?> targetClass, Class<?>... validGroups);
+        Operator addAll(List<Descriptor> descriptor);
         Operator addAll(Descriptor... descriptor);
         Operator filter(String... fieldName);
         Operator exclude(String... fieldName);
@@ -123,15 +127,6 @@ public interface RestDocs {
          * @see org.springframework.restdocs.payload.PayloadDocumentation#responseFields
          */
         ResponseFieldsSnippet responseFields();
-
-        /**
-         * Creates a snippet for documenting JSON response body fields with a prefix.
-         *
-         * @param prefix The prefix to be applied to all field paths
-         * @return A snippet for response body fields documentation
-         * @see org.springframework.restdocs.payload.PayloadDocumentation#responseFields
-         */
-        ResponseFieldsSnippet responseFields(String prefix);
 
         /**
          * Creates a snippet for documenting the raw request body.

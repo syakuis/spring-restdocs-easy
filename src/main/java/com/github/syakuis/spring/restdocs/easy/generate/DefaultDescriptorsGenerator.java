@@ -13,6 +13,7 @@ import java.util.Set;
  * @author Seok Kyun. Choi.
  * @since 2024-10-23
  */
+// todo descriptor cache
 public class DefaultDescriptorsGenerator extends DescriptionMessageSource implements DescriptorsGenerator {
     private final Set<Descriptor> descriptors = new HashSet<>();
 
@@ -79,6 +80,11 @@ public class DefaultDescriptorsGenerator extends DescriptionMessageSource implem
 
     @Override
     public RestDocs.Operator generate() {
+        return generate(null);
+    }
+
+    @Override
+    public RestDocs.Operator generate(String prefix) {
         return new DefaultRestDocs.DefaultOperator(descriptors.stream().map(it -> it.description(getMessageByExpression(it.description()))).toList());
     }
 }

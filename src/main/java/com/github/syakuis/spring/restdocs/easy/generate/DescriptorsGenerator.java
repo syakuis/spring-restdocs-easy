@@ -58,4 +58,5 @@ public interface DescriptorsGenerator {
      * @return An operator containing the list of descriptors
      */
     RestDocs.Operator generate();
+    RestDocs.Operator generate(String prefix);
 }

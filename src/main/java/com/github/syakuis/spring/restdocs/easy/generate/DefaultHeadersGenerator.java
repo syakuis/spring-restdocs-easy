@@ -19,6 +19,7 @@ import java.util.Map;
  * @since 2024-10-23
  * @see org.springframework.restdocs.headers.HeaderDocumentation
  */
+// todo descriptor cache
 public class DefaultHeadersGenerator extends DescriptionMessageSource implements HeadersGenerator {
     private final Map<String, String> descriptors = new LinkedHashMap<>();
 

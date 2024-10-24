@@ -30,7 +30,7 @@ class ClassDescriptorGeneratorTest {
 
     @Test
     void testColor() {
-        var result = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper, Color.class).generate();
+        var result = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper).generate(Color.class);
 
         result.forEach(it -> {
             if (it.name().equals("background")) {
@@ -43,7 +43,7 @@ class ClassDescriptorGeneratorTest {
 
     @Test
     void getMessage() {
-        var result = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper, Sample.class).generate();
+        var result = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper).generate(Sample.class);
 
         result.stream().filter(it -> it.name().equals("name")).forEach(it -> {
             assertEquals("테스트", it.description());
@@ -53,7 +53,7 @@ class ClassDescriptorGeneratorTest {
 
     @Test
     void testOptionalField() {
-        var result = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper, SampleWithOptionalField.class).generate();
+        var result = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper).generate(SampleWithOptionalField.class);
 
         result.stream().filter(it -> it.name().equals("optionalField")).forEach(it -> {
             assertTrue(it.optional());
@@ -62,7 +62,7 @@ class ClassDescriptorGeneratorTest {
 
     @Test
     void testFieldWithoutConstraints() {
-        var result = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper, SampleWithoutConstraints.class).generate();
+        var result = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper).generate(SampleWithoutConstraints.class);
 
         result.stream().filter(it -> it.name().equals("noConstraintField")).forEach(it -> {
             assertEquals(0, it.attributes().length);
@@ -71,7 +71,7 @@ class ClassDescriptorGeneratorTest {
 
     @Test
     void testEnumField() {
-        var result = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper, SampleWithEnum.class).generate();
+        var result = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper).generate(SampleWithEnum.class);
 
         result.stream().filter(it -> it.name().equals("enumField")).forEach(it -> {
             assertTrue(it.description().toString().contains("ENUM_CONSTANT"));
@@ -80,7 +80,7 @@ class ClassDescriptorGeneratorTest {
 
     @Test
     void testFieldWithNotNullConstraint() {
-        var result = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper, SampleWithNotNull.class).generate();
+        var result = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper).generate(SampleWithNotNull.class);
 
         result.stream().filter(it -> it.name().equals("notNullField")).forEach(it -> {
             assertTrue(it.attributes().length > 0);
@@ -91,7 +91,7 @@ class ClassDescriptorGeneratorTest {
 
     @Test
     void testFieldWithSizeConstraint() {
-        var result = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper, SampleWithSize.class).generate();
+        var result = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper).generate(SampleWithSize.class);
 
         result.stream().filter(it -> it.name().equals("sizeField")).forEach(it -> {
             assertTrue(it.attributes().length > 0);  // Check that constraints are present
@@ -116,7 +116,7 @@ class ClassDescriptorGeneratorTest {
             LocalDate dateField
         ) {}
 
-        var result = new ClassDescriptorGenerator(messageSource, customMapper, TestClass.class).generate();
+        var result = new ClassDescriptorGenerator(messageSource, customMapper).generate(TestClass.class);
 
         result.forEach(descriptor -> {
             switch (descriptor.name()) {
