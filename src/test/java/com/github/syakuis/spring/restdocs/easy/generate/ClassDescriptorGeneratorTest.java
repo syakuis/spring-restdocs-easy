@@ -8,11 +8,13 @@ import org.springframework.boot.autoconfigure.context.MessageSourceAutoConfigura
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Import;
+import org.springframework.restdocs.payload.JsonFieldType;
 
+import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Seok Kyun. Choi.
@@ -24,9 +26,11 @@ class ClassDescriptorGeneratorTest {
     @Autowired
     private MessageSource messageSource;
 
+    private final JsonFieldTypeMapper jsonFieldTypeMapper = new JsonFieldTypeMapper();
+
     @Test
     void testColor() {
-        var result = new ClassDescriptorGenerator(messageSource, Color.class).generate();
+        var result = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper, Color.class).generate();
 
         result.forEach(it -> {
             if (it.name().equals("background")) {
@@ -39,7 +43,7 @@ class ClassDescriptorGeneratorTest {
 
     @Test
     void getMessage() {
-        var result = new ClassDescriptorGenerator(messageSource, Sample.class).generate();
+        var result = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper, Sample.class).generate();
 
         result.stream().filter(it -> it.name().equals("name")).forEach(it -> {
             assertEquals("테스트", it.description());
@@ -49,7 +53,7 @@ class ClassDescriptorGeneratorTest {
 
     @Test
     void testOptionalField() {
-        var result = new ClassDescriptorGenerator(messageSource, SampleWithOptionalField.class).generate();
+        var result = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper, SampleWithOptionalField.class).generate();
 
         result.stream().filter(it -> it.name().equals("optionalField")).forEach(it -> {
             assertTrue(it.optional());
@@ -58,7 +62,7 @@ class ClassDescriptorGeneratorTest {
 
     @Test
     void testFieldWithoutConstraints() {
-        var result = new ClassDescriptorGenerator(messageSource, SampleWithoutConstraints.class).generate();
+        var result = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper, SampleWithoutConstraints.class).generate();
 
         result.stream().filter(it -> it.name().equals("noConstraintField")).forEach(it -> {
             assertEquals(0, it.attributes().length);
@@ -67,7 +71,7 @@ class ClassDescriptorGeneratorTest {
 
     @Test
     void testEnumField() {
-        var result = new ClassDescriptorGenerator(messageSource, SampleWithEnum.class).generate();
+        var result = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper, SampleWithEnum.class).generate();
 
         result.stream().filter(it -> it.name().equals("enumField")).forEach(it -> {
             assertTrue(it.description().toString().contains("ENUM_CONSTANT"));
@@ -76,7 +80,7 @@ class ClassDescriptorGeneratorTest {
 
     @Test
     void testFieldWithNotNullConstraint() {
-        var result = new ClassDescriptorGenerator(messageSource, SampleWithNotNull.class).generate();
+        var result = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper, SampleWithNotNull.class).generate();
 
         result.stream().filter(it -> it.name().equals("notNullField")).forEach(it -> {
             assertTrue(it.attributes().length > 0);
@@ -87,12 +91,54 @@ class ClassDescriptorGeneratorTest {
 
     @Test
     void testFieldWithSizeConstraint() {
-        var result = new ClassDescriptorGenerator(messageSource, SampleWithSize.class).generate();
+        var result = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper, SampleWithSize.class).generate();
 
         result.stream().filter(it -> it.name().equals("sizeField")).forEach(it -> {
             assertTrue(it.attributes().length > 0);  // Check that constraints are present
             assertTrue(Arrays.stream(it.attributes()).anyMatch(attr ->
                 attr.getValue().toString().contains("Size must be between 2 and 10 inclusive")));  // Check for Size message
+        });
+    }
+
+    @Test
+    void testJsonFieldTypeMapping() {
+        JsonFieldTypeMapper customMapper = new JsonFieldTypeMapper();
+        customMapper.add(String.class, JsonFieldType.STRING);
+        customMapper.add(Integer.class, JsonFieldType.NUMBER);
+        customMapper.add(Boolean.class, JsonFieldType.BOOLEAN);
+        customMapper.add(List.class, JsonFieldType.ARRAY);
+
+        record TestClass(
+            String stringField,
+            Integer intField,
+            Boolean boolField,
+            List<String> listField,
+            LocalDate dateField
+        ) {}
+
+        var result = new ClassDescriptorGenerator(messageSource, customMapper, TestClass.class).generate();
+
+        result.forEach(descriptor -> {
+            switch (descriptor.name()) {
+                case "stringField":
+                    assertEquals(JsonFieldType.STRING, descriptor.type());
+                    break;
+                case "intField":
+                    assertEquals(JsonFieldType.NUMBER, descriptor.type());
+                    break;
+                case "boolField":
+                    assertEquals(JsonFieldType.BOOLEAN, descriptor.type());
+                    break;
+                case "listField":
+                    assertEquals(JsonFieldType.ARRAY, descriptor.type());
+                    break;
+                case "dateField":
+                    // LocalDate는 기본적으로 STRING으로 매핑됩니다 (JsonFieldTypeMapper의 기본 설정에 따라)
+                    assertEquals(JsonFieldType.STRING, descriptor.type());
+                    break;
+                default:
+                    fail("Unexpected field: " + descriptor.name());
+            }
         });
     }
 

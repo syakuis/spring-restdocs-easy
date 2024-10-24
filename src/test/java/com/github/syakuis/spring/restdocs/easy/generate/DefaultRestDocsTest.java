@@ -29,14 +29,14 @@ class DefaultRestDocsTest {
 
     @BeforeEach
     void setUp() {
-        defaultRestDocs = new DefaultRestDocs(messageSource);
+        defaultRestDocs = new DefaultRestDocs(messageSource, new JsonFieldTypeMapper());
     }
 
     @Test
     void testGenerate() {
         RestDocs.Operator operator = defaultRestDocs.generate(TestClass.class);
         assertNotNull(operator);
-        assertTrue(operator instanceof DefaultRestDocs.DefaultOperator);
+        assertInstanceOf(DefaultRestDocs.DefaultOperator.class, operator);
     }
 
     @Test

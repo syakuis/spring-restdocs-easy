@@ -1,6 +1,5 @@
 package com.github.syakuis.spring.restdocs.easy.generate;
 
-import org.springframework.context.MessageSource;
 import org.springframework.restdocs.cookies.CookieDescriptor;
 import org.springframework.restdocs.cookies.RequestCookiesSnippet;
 import org.springframework.restdocs.cookies.ResponseCookiesSnippet;
@@ -32,35 +31,12 @@ public interface RestDocs {
     Operator generate(Class<?> targetClass);
 
     /**
-     * Builder class for constructing RestDocs instances.
-     */
-    class RestDocsBuilder implements RestDocs.Builder {
-        private MessageSource messageSource;
-
-        @Override
-        public RestDocs.Builder messageSource(MessageSource messageSource) {
-            this.messageSource = messageSource;
-            return this;
-        }
-
-        @Override
-        public RestDocs build() {
-            return new DefaultRestDocs(messageSource);
-        }
-    }
-
-    /**
      * Provides a builder for creating RestDocs instances.
      *
      * @return a RestDocs.Builder instance
      */
-    static RestDocs.Builder builder() {
-        return new RestDocsBuilder();
-    }
-
-    interface Builder {
-        RestDocs.Builder messageSource(MessageSource messageSource);
-        RestDocs build();
+    static RestDocsBuilder builder() {
+        return new DefaultRestDocsBuilder();
     }
 
     interface Operator {

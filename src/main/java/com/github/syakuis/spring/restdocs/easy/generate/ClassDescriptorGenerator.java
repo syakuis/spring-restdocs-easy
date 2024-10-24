@@ -1,7 +1,7 @@
 package com.github.syakuis.spring.restdocs.easy.generate;
 
-import com.github.syakuis.spring.restdocs.easy.core.ClassMetadataGenerator;
 import com.github.syakuis.spring.restdocs.easy.core.ClassFieldMetadata;
+import com.github.syakuis.spring.restdocs.easy.core.ClassMetadataGenerator;
 import org.springframework.context.MessageSource;
 import org.springframework.restdocs.snippet.Attributes;
 
@@ -16,6 +16,7 @@ import java.util.List;
  * @since 2024-10-18
  */
 public class ClassDescriptorGenerator extends AbstractConstraintDescriptions {
+    private final JsonFieldTypeMapper jsonFieldTypeMapper;
     private final Class<?> targetClass;
 
     /**
@@ -24,8 +25,9 @@ public class ClassDescriptorGenerator extends AbstractConstraintDescriptions {
      * @param messageSource MessageSource for resolving messages
      * @param targetClass   The class to generate descriptors for
      */
-    public ClassDescriptorGenerator(MessageSource messageSource, Class<?> targetClass) {
+    public ClassDescriptorGenerator(MessageSource messageSource, JsonFieldTypeMapper jsonFieldTypeMapper, Class<?> targetClass) {
         super(messageSource, targetClass);
+        this.jsonFieldTypeMapper = jsonFieldTypeMapper;
         this.targetClass = targetClass;
     }
 
@@ -67,7 +69,7 @@ public class ClassDescriptorGenerator extends AbstractConstraintDescriptions {
         if (fieldMetadata.target().isEnum()) {
             return Descriptor.builder()
                 .name(fieldMetadata.name())
-                .type(JsonFieldTypeMapper.get(fieldMetadata.type()))
+                .type(jsonFieldTypeMapper.get(fieldMetadata.type()))
                 .description(super.getMessage(fieldMetadata))
                 .optional(false)
                 .ignore(false)
@@ -77,7 +79,7 @@ public class ClassDescriptorGenerator extends AbstractConstraintDescriptions {
 
         return Descriptor.builder()
             .name(fieldMetadata.name())
-            .type(JsonFieldTypeMapper.get(fieldMetadata.type()))
+            .type(jsonFieldTypeMapper.get(fieldMetadata.type()))
             .description(super.getMessage(fieldMetadata))
             .optional(fieldOptionalValidator.isFieldOptional(fieldMetadata.field()))
             .ignore(false)

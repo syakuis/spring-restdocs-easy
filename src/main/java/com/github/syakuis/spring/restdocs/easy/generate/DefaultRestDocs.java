@@ -41,9 +41,11 @@ import static org.springframework.restdocs.request.RequestDocumentation.partWith
  */
 class DefaultRestDocs implements RestDocs {
     private final MessageSource messageSource;
+    private final JsonFieldTypeMapper jsonFieldTypeMapper;
 
-    public DefaultRestDocs(MessageSource messageSource) {
+    public DefaultRestDocs(MessageSource messageSource, JsonFieldTypeMapper jsonFieldTypeMapper) {
         this.messageSource = messageSource;
+        this.jsonFieldTypeMapper = jsonFieldTypeMapper;
     }
 
     @Override
@@ -69,7 +71,7 @@ class DefaultRestDocs implements RestDocs {
      */
     @Override
     public Operator generate(Class<?> targetClass) {
-        return new DefaultOperator(new ClassDescriptorGenerator(messageSource, targetClass).generate());
+        return new DefaultOperator(new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper, targetClass).generate());
     }
 
     /**

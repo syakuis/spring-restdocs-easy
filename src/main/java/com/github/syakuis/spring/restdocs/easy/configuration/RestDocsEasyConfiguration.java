@@ -2,7 +2,6 @@ package com.github.syakuis.spring.restdocs.easy.configuration;
 
 import com.github.syakuis.spring.restdocs.easy.generate.RestDocs;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.restdocs.RestDocsMockMvcConfigurationCustomizer;
@@ -15,11 +14,10 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.pr
  * @author Seok Kyun. Choi.
  * @since 2021-08-14
  */
-@Slf4j
 @RequiredArgsConstructor
 @AutoConfiguration
 @EnableConfigurationProperties
-public class RestDocsGenerationConfiguration {
+public class RestDocsEasyConfiguration {
     private final MessageSource messageSource;
 
     @Bean

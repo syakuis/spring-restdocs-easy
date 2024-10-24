@@ -21,7 +21,7 @@ import java.lang.annotation.*;
 @Inherited
 @ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
 @AutoConfigureRestDocs
-@Import({MessageSourceAutoConfiguration.class, RestDocsGenerationConfiguration.class})
+@Import({MessageSourceAutoConfiguration.class, RestDocsEasyConfiguration.class})
 @PropertyMapping("spring.test.restdocs")
 public @interface AutoConfigureMvcRestDocs {
     @AliasFor(annotation = AutoConfigureRestDocs.class, attribute = "value")
