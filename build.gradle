@@ -1,8 +1,10 @@
 import org.gradle.api.internal.provider.MappingProvider
+import com.vanniktech.maven.publish.SonatypeHost
 
 buildscript {
     ext {
-        springBootVersion = "3.2.10"
+        springBootVersion = "3.3.5"
+        springRestDocsVersion = "3.0.2"
         lombokVersion = '1.18.32'
 
         snippetsDir = layout.buildDirectory.dir("generated-snippets") as MappingProvider
@@ -16,10 +18,11 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
         classpath "io.spring.gradle:dependency-management-plugin:1.1.0"
         classpath "org.asciidoctor:asciidoctor-gradle-jvm:3.3.2"
         classpath "gradle.plugin.com.google.gradle:osdetector-gradle-plugin:1.7.2"
+        classpath "com.vanniktech:gradle-maven-publish-plugin:0.30.0"
     }
 }
 
@@ -61,13 +64,13 @@ allprojects {
             implementation "io.netty:netty-resolver-dns-native-macos:4.1.79.Final:osx-aarch_64"
         }
 
-        compileOnly "org.projectlombok:lombok:${lombokVersion}"
-        testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
-        annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-        testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+        compileOnly "org.projectlombok:lombok:$lombokVersion"
+        testCompileOnly "org.projectlombok:lombok:$lombokVersion"
+        annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+        testAnnotationProcessor "org.projectlombok:lombok:$lombokVersion"
 
-        implementation 'org.springframework.boot:spring-boot-autoconfigure'
-        annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+        implementation "org.springframework.boot:spring-boot-autoconfigure:$springBootVersion"
+        annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:$springBootVersion"
     }
 
     asciidoctor {
@@ -109,12 +112,64 @@ allprojects {
     }
 }
 
+apply plugin: "com.vanniktech.maven.publish"
+apply plugin: "signing"
+
 dependencies {
-    asciidoctorExtensions "org.springframework.restdocs:spring-restdocs-asciidoctor"
+    asciidoctorExtensions "org.springframework.restdocs:spring-restdocs-asciidoctor:$springRestDocsVersion"
 
-    api "org.springframework.restdocs:spring-restdocs-mockmvc"
-    implementation "org.springframework.boot:spring-boot-starter-test"
-    implementation "org.springframework.boot:spring-boot-starter-validation"
+    api "org.springframework.restdocs:spring-restdocs-mockmvc:$springRestDocsVersion"
+    implementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    implementation "org.springframework.boot:spring-boot-starter-validation:$springBootVersion"
 
-    testImplementation "org.springframework.boot:spring-boot-starter-web"
+    testImplementation "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+}
+
+ext.mavenCentralUsername = project.findProperty("mavenCentralUsername")?.toString()
+ext.mavenCentralUsername = project.findProperty("mavenCentralPassword")?.toString()
+
+mavenPublishing {
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+    signAllPublications()
+
+    coordinates(
+        project.group,
+        project.name,
+        project.version
+    )
+
+    pom {
+        name = project.name
+        description = 'Spring REST Docs Easy extends Spring REST Docs to simplify API documentation. It combines test-driven documentation with internationalization support, enabling the creation of accurate and easily manageable API documentation.'
+        url = 'https://github.com/syakuis/spring-restdocs-easy'
+
+        licenses {
+            license {
+                name = 'The MIT License'
+                url = 'https://opensource.org/licenses/MIT'
+            }
+        }
+        developers {
+            developer {
+                id = 'syaku'
+                name = 'seokkyun choi'
+                email = 'syaku@naver.com'
+            }
+        }
+        scm {
+            connection = 'scm:git:git://github.com/syakuis/spring-restdocs-easy.git'
+            developerConnection = 'scm:git:ssh://github.com/syakuis/spring-restdocs-easy.git'
+            url = 'https://github.com/syakuis/spring-restdocs-easy'
+        }
+    }
+}
+
+signing {
+    useInMemoryPgpKeys(
+        project.findProperty('signing.keyId')?.toString(),
+        project.findProperty('signing.signingInMemoryKey')?.toString(),
+        project.findProperty('signing.password')?.toString()
+    )
+
+    sign publishing.publications
 }

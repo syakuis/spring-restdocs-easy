@@ -135,7 +135,7 @@ public class DefaultParamsGenerator extends DescriptionMessageSource implements 
 
     /**
      * Creates a Spring REST Docs snippet for query parameters documentation.
-     * Used for documenting URL query parameters (e.g., /api/users?page=1&size=10).
+     * Used for documenting URL query parameters (e.g., {@code /api/users?page=1&size=10}).
      *
      * @return snippet for documenting query parameters
      * @see org.springframework.restdocs.request.RequestDocumentation#queryParameters

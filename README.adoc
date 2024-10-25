@@ -61,11 +61,14 @@ class UserControllerTest {
             .andExpect(status().isOk())
             .andDo(document("user-get",
                 restDocs.generate(UserResponse.class)
-                    .andGenerate("address.", AddressResponse.class)
+                    .addAll("address.", AddressResponse.class)
                     .responseFields()));
     }
 }
 ----
+
+You can find the actual test code in the following file:
+link:examples/src/test/java/io/github/syakuis/spring/restdocs/easy/examples/adapter/web/controller/MemberRestControllerTest.java[MemberRestControllerTest.java]
 
 === Message Properties
 [source,properties]

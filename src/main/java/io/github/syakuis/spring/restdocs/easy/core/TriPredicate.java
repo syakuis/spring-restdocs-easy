@@ -23,9 +23,9 @@ package io.github.syakuis.spring.restdocs.easy.core;
  * @author Seok Kyun. Choi.
  * @since 2024-06-02
  *
- * @param <A> the type of the first argument (typically a Class<?>)
+ * @param <A> the type of the first argument ({@code typically a Class<?>})
  * @param <B> the type of the second argument (typically a String)
- * @param <C> the type of the third argument (typically a Class<?>)
+ * @param <C> the type of the third argument ({@code typically a Class<?>})
  *
  * @see java.util.function.Predicate
  * @see java.util.function.BiPredicate

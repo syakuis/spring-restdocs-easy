@@ -95,7 +95,7 @@ public interface ParamsGenerator {
 
     /**
      * Creates a Spring REST Docs snippet for query parameters documentation.
-     * Used for documenting URL query parameters (e.g., /api/users?page=1&size=10).
+     * Used for documenting URL query parameters (e.g., {@code /api/users?page=1&size=10}).
      *
      * <p>Example usage in test:</p>
      * <pre>{@code
