@@ -40,7 +40,7 @@ To use Spring REST Docs Easy in your project, add the following dependency to yo
 [source,gradle]
 ----
 dependencies {
-    testImplementation 'com.github.syakuis:spring-restdocs-easy:1.0.0'
+    testImplementation 'io.github.syakuis:spring-restdocs-easy:1.0.0'
 }
 ----
 

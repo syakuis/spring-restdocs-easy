@@ -11,7 +11,7 @@ dependencies {
 }
 
 application {
-    mainClass = 'com.github.syakuis.spring.restdocs.easy.examples.Application'
+    mainClass = 'io.github.syakuis.spring.restdocs.easy.examples.Application'
 }
 
 bootJar {

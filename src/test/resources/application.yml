@@ -2,7 +2,7 @@ logging:
   level:
     root: info
     org.springframework.web: debug
-    com.github.syakuis: trace
+    io.github.syakuis: trace
 server:
   port: -1
   forward-headers-strategy: native

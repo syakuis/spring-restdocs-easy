@@ -1,7 +1,7 @@
 logging:
   level:
     root: info
-    com.github.syakuis: info
+    io.github.syakuis: info
     org.springframework.web: info
 server:
   port: 8080

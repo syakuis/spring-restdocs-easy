@@ -34,7 +34,7 @@ allprojects {
         gradleVersion = "8.10"
     }
 
-    group = "com.github.syakuis"
+    group = "io.github.syakuis"
     version = "1.0.0-SNAPSHOT"
 
     java {
