@@ -13,26 +13,58 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * A utility class that provides useful operations for collections of Descriptor objects.
- * <p>
- * This class offers methods to merge and manipulate lists of Descriptor objects efficiently.
- * It ensures that the resulting list contains unique Descriptor objects based on their names,
- * with values from the source list taking precedence over those in the target list.
- * <p>
- * The class is designed to be used as a static utility and cannot be instantiated.
+ * A utility class for managing and manipulating collections of descriptors in Spring REST Docs Easy.
+ * Provides functionality to merge and transform descriptor collections while maintaining
+ * documentation properties and relationships with Spring REST Docs.
+ *
+ * <p>Key features:</p>
+ * - Merges descriptor lists with source precedence
+ * - Updates descriptor properties (description, type, optional status)
+ * - Handles different Spring REST Docs descriptor types
+ * - Preserves documentation attributes and constraints
+ *
+ * <p>Example usage:</p>
+ * <pre>{@code
+ * // Merge descriptors with overrides
+ * List<Descriptor> merged = DescriptorCollector.merge(baseDescriptors, overrideDescriptors);
+ *
+ * // Transform to Spring REST Docs FieldDescriptor
+ * FieldDescriptor fieldDesc = DescriptorCollector
+ *     .updateFieldDescriptor(new FieldDescriptor("field"))
+ *     .apply(descriptor);
+ * }</pre>
  *
  * @author Seok Kyun. Choi.
  * @since 2024-10-22
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DescriptorCollector {
+
     /**
-     * Merges two lists of Descriptor objects. If a field exists in both lists,
-     * the value from the source list overwrites the one in the target list.
+     * Merges two lists of Descriptor objects, with source descriptors taking precedence.
+     * When duplicate field names are found, the source descriptor's properties override
+     * the target descriptor's properties.
      *
-     * @param target The base list to merge into
-     * @param source The list to merge from
-     * @return A new list containing the merged result
+     * <p>Example:</p>
+     * <pre>{@code
+     * // Target list
+     * List<Descriptor> target = List.of(
+     *     new Descriptor("name", "Name field"),
+     *     new Descriptor("age", "Age field")
+     * );
+     *
+     * // Source list (overrides)
+     * List<Descriptor> source = List.of(
+     *     new Descriptor("name", "Updated name field")
+     * );
+     *
+     * // Result: "name" from source, "age" from target
+     * List<Descriptor> merged = DescriptorCollector.merge(target, source);
+     * }</pre>
+     *
+     * @param target the base list of descriptors to merge into
+     * @param source the list of descriptors that will override matching fields in target
+     * @return a new list containing all unique descriptors with source taking precedence
      */
     public static List<Descriptor> merge(List<Descriptor> target, List<Descriptor> source) {
         if (source == null || source.isEmpty()) {
@@ -48,11 +80,18 @@ public final class DescriptorCollector {
     }
 
     /**
-     * Updates the given descriptor with the common properties from the source descriptor.
+     * Updates a Spring REST Docs AbstractDescriptor with common properties.
+     * Copies description and attributes from the source descriptor if present.
+     *
+     * <p>Example:</p>
+     * <pre>{@code
+     * AbstractDescriptor<?> updated = updateDescriptor(newDescriptor)
+     *     .apply(sourceDescriptor);  // Copies description and attributes
+     * }</pre>
      *
      * @param newDescriptor the descriptor to be updated
-     * @param <T>           the type of the descriptor, which must extend AbstractDescriptor
-     * @return a function that takes a source descriptor and returns the updated descriptor
+     * @param <T> the type of the descriptor, which must extend AbstractDescriptor
+     * @return a function that applies the updates to the descriptor
      */
     public static <T extends AbstractDescriptor<T>> Function<Descriptor, T> updateDescriptor(T newDescriptor) {
         return descriptor -> {
@@ -69,11 +108,18 @@ public final class DescriptorCollector {
     }
 
     /**
-     * Updates the given ignorable descriptor with the ignorable properties from the source descriptor.
+     * Updates a Spring REST Docs IgnorableDescriptor with common properties and ignore status.
+     * Extends updateDescriptor by adding ignore status handling.
+     *
+     * <p>Example:</p>
+     * <pre>{@code
+     * IgnorableDescriptor<?> updated = updateIgnorableDescriptor(newDescriptor)
+     *     .apply(sourceDescriptor);  // Copies properties and ignore status
+     * }</pre>
      *
      * @param newDescriptor the ignorable descriptor to be updated
-     * @param <T>           the type of the ignorable descriptor, which must extend IgnorableDescriptor
-     * @return a function that takes a source descriptor and returns the updated ignorable descriptor
+     * @param <T> the type of the descriptor, which must extend IgnorableDescriptor
+     * @return a function that applies the updates to the descriptor
      */
     public static <T extends IgnorableDescriptor<T>> Function<Descriptor, T> updateIgnorableDescriptor(T newDescriptor) {
         return descriptor -> {
@@ -88,11 +134,18 @@ public final class DescriptorCollector {
     }
 
     /**
-     * Updates the given field descriptor with the field-specific properties from the source descriptor.
+     * Updates a Spring REST Docs FieldDescriptor with all properties including field-specific ones.
+     * Extends updateIgnorableDescriptor by adding optional status and field type handling.
+     *
+     * <p>Example:</p>
+     * <pre>{@code
+     * FieldDescriptor updated = updateFieldDescriptor(newDescriptor)
+     *     .apply(sourceDescriptor);  // Copies all properties including optional status and type
+     * }</pre>
      *
      * @param newDescriptor the field descriptor to be updated
-     * @param <T>           the type of the field descriptor, which must extend FieldDescriptor
-     * @return a function that takes a source descriptor and returns the updated field descriptor
+     * @param <T> the type of the descriptor, which must extend FieldDescriptor
+     * @return a function that applies the updates to the descriptor
      */
     public static <T extends FieldDescriptor> Function<Descriptor, T> updateFieldDescriptor(T newDescriptor) {
         return descriptor -> {
@@ -109,5 +162,4 @@ public final class DescriptorCollector {
             return newDescriptor;
         };
     }
-
 }

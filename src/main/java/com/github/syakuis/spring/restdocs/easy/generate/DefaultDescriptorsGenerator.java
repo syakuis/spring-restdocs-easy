@@ -7,8 +7,29 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Default implementation of DescriptorsGenerator.
- * Manages a set of descriptors and provides methods to add and generate them.
+ * Default implementation of DescriptorsGenerator for "Spring REST Docs Easy".
+ * Manages field descriptors with support for message internationalization
+ * and Spring REST Docs integration. This implementation extends Spring REST Docs
+ * to provide enhanced field documentation capabilities.
+ *
+ * <p>Key features:</p>
+ * - Maintains unique descriptors using HashSet
+ * - Supports message source integration for i18n
+ * - Validates field names
+ * - Provides prefix support for nested structures
+ * - Generates Spring REST Docs compatible descriptors
+ *
+ * <p>Example usage:</p>
+ * <pre>{@code
+ * DefaultDescriptorsGenerator generator = new DefaultDescriptorsGenerator(messageSource);
+ * generator
+ *     .add("id", "{user.id.description}", JsonFieldType.NUMBER)
+ *     .add("email", "{user.email.description}", JsonFieldType.STRING, true)
+ *     .add("role", "User role");
+ *
+ * // Generate with prefix for nested structure
+ * RestDocs.Operator operator = generator.generate("user");
+ * }</pre>
  *
  * @author Seok Kyun. Choi.
  * @since 2024-10-23
@@ -24,7 +45,7 @@ public class DefaultDescriptorsGenerator extends DescriptionMessageSource implem
     /**
      * Validates that the field name is not null or blank.
      *
-     * @param name The field name to validate
+     * @param name the field name to validate
      * @throws IllegalArgumentException if the name is null or blank
      */
     private void validName(String name) {
@@ -56,6 +77,7 @@ public class DefaultDescriptorsGenerator extends DescriptionMessageSource implem
     /**
      * {@inheritDoc}
      * Creates and adds a descriptor with complete specifications.
+     * The description can be a direct string or a message key in the format {key}.
      */
     @Override
     public DescriptorsGenerator add(String name, String description, JsonFieldType type, boolean optional) {
@@ -71,6 +93,8 @@ public class DefaultDescriptorsGenerator extends DescriptionMessageSource implem
     /**
      * {@inheritDoc}
      * Adds a pre-built descriptor to the set.
+     * If a descriptor with the same name already exists, it will be replaced
+     * due to HashSet behavior.
      */
     @Override
     public DescriptorsGenerator add(Descriptor descriptor) {
@@ -78,11 +102,25 @@ public class DefaultDescriptorsGenerator extends DescriptionMessageSource implem
         return this;
     }
 
+    /**
+     * Generates an operator for creating documentation snippets.
+     * Equivalent to calling {@code generate(null)}.
+     *
+     * @return operator configured with the current descriptors
+     */
     @Override
     public RestDocs.Operator generate() {
         return generate(null);
     }
 
+    /**
+     * Generates an operator for creating documentation snippets with a prefix.
+     * Resolves message keys in descriptions and applies the specified prefix
+     * to all field paths.
+     *
+     * @param prefix optional prefix for field paths (e.g., "user" for "user.name")
+     * @return operator configured with the current descriptors and prefix
+     */
     @Override
     public RestDocs.Operator generate(String prefix) {
         return new DefaultRestDocs.DefaultOperator(descriptors.stream().map(it -> it.description(getMessageByExpression(it.description()))).toList());

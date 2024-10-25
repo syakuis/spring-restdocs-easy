@@ -11,9 +11,31 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Default implementation of the HeaderGenerator interface.
- * This class is responsible for generating header information compatible with Spring REST Docs' HeaderDocumentation.
- * It allows adding headers with their corresponding media types and generates descriptors for API documentation.
+ * Default implementation of HeadersGenerator for "Spring REST Docs Easy".
+ * Manages HTTP header documentation with support for message internationalization
+ * and Spring REST Docs integration. "Spring REST Docs Easy" extends Spring REST Docs
+ * to provide enhanced documentation capabilities with easier configuration and usage.
+ *
+ * <p>Key features:</p>
+ * - Maintains header descriptions in a LinkedHashMap for order preservation
+ * - Supports message source integration for i18n
+ * - Validates header names
+ * - Converts MediaType to appropriate string representations
+ * - Generates Spring REST Docs compatible descriptors
+ * - Simplifies Spring REST Docs header documentation process
+ *
+ * <p>Example usage:</p>
+ * <pre>{@code
+ * DefaultHeadersGenerator generator = new DefaultHeadersGenerator(messageSource);
+ * generator
+ *     .add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+ *     .add(HttpHeaders.AUTHORIZATION, "{api.auth.description}")
+ *     .add("Custom-Header", "Custom header description");
+ *
+ * // Generate documentation snippets
+ * RequestHeadersSnippet requestSnippet = generator.requestHeaders();
+ * ResponseHeadersSnippet responseSnippet = generator.responseHeaders();
+ * }</pre>
  *
  * @author Seok Kyun. Choi.
  * @since 2024-10-23
@@ -27,6 +49,12 @@ public class DefaultHeadersGenerator extends DescriptionMessageSource implements
         super(messageSource);
     }
 
+    /**
+     * Validates the HTTP header name.
+     *
+     * @param headerName the header name to validate
+     * @throws IllegalArgumentException if headerName is null or blank
+     */
     private void validHeaderName(String headerName) {
         if (headerName == null || headerName.isBlank()) {
             throw new IllegalArgumentException("headerName must not be null or blank");
@@ -54,6 +82,15 @@ public class DefaultHeadersGenerator extends DescriptionMessageSource implements
         return this;
     }
 
+    /**
+     * Adds a header with a custom description to the descriptors map.
+     * The description can be a direct string or a message key in the format {key}.
+     *
+     * @param httpHeaders the header name (e.g., "Authorization", "Custom-Header")
+     * @param description the header description or message key (e.g., "{api.auth.description}")
+     * @return the current instance for method chaining
+     * @see org.springframework.http.HttpHeaders
+     */
     @Override
     public HeadersGenerator add(String httpHeaders, String description) {
         validHeaderName(httpHeaders);
@@ -62,16 +99,37 @@ public class DefaultHeadersGenerator extends DescriptionMessageSource implements
         return this;
     }
 
+    /**
+     * Creates a Spring REST Docs snippet for request headers documentation.
+     * Converts all added headers to RequestHeadersSnippet format.
+     *
+     * @return snippet containing all defined request headers
+     * @see org.springframework.restdocs.headers.HeaderDocumentation#requestHeaders
+     */
     @Override
     public RequestHeadersSnippet requestHeaders() {
         return generate().requestHeaders();
     }
 
+    /**
+     * Creates a Spring REST Docs snippet for response headers documentation.
+     * Converts all added headers to ResponseHeadersSnippet format.
+     *
+     * @return snippet containing all defined response headers
+     * @see org.springframework.restdocs.headers.HeaderDocumentation#responseHeaders
+     */
     @Override
     public ResponseHeadersSnippet responseHeaders() {
         return generate().responseHeaders();
     }
 
+    /**
+     * Converts all defined headers to Spring REST Docs HeaderDescriptor objects.
+     * This method resolves any message keys in the descriptions before conversion.
+     *
+     * @return list of HeaderDescriptor objects
+     * @see org.springframework.restdocs.headers.HeaderDescriptor
+     */
     @Override
     public List<HeaderDescriptor> toHeader() {
         return generate().toHeader();

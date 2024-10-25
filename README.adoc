@@ -6,108 +6,84 @@
 
 == Introduction
 
-Spring REST Docs Easy makes API documentation simpler and more efficient through automation and internationalization support. It's designed to streamline the documentation process, allowing developers to focus on building great features rather than writing extensive documentation.
+Spring REST Docs Easy extends Spring REST Docs to simplify API documentation. It combines test-driven documentation with internationalization support, enabling the creation of accurate and easily manageable API documentation.
 
-== Key Strengths of Spring REST Docs Easy
+== Key Features
 
-=== 1. Automated Description Generation
+=== 1. Spring REST Docs Integration
+* Utilizes all core functionalities of Spring REST Docs
+* Seamlessly integrates with existing Spring REST Docs projects
+* Full compatibility with MockMvc testing framework
 
-* Automatically reads class structures to generate descriptor objects.
-* Greatly simplifies the documentation process.
-* Reduces the burden on developers to manually write documentation code.
-* Especially useful in environments where data models frequently change.
+=== 2. Automated Field Documentation
+* Automatically detects class fields using reflection
+* Handles nested object structures with simple methods
+* Easily documents array-type responses
 
-=== 2. Internationalization Support
+=== 3. Internationalization (i18n) Support
+* Leverages Spring's MessageSource for multilingual descriptions
+* Manages field descriptions using message keys
+* Utilizes reusable message resources
 
-* Utilizes internationalization messages to bind descriptions.
-* Makes it easier to manage documentation in projects requiring multilingual support.
-* Significant advantage for applications targeting global markets.
+=== 4. Validation Annotation Integration
+* Automatically detects Jakarta Validation annotations
+* Distinguishes between required and optional fields
+* Supports validation groups
 
-=== 3. Validation Annotation Handling
 
-* Reads validation annotations defined on class fields.
-* Automatically extracts constraints and outputs them based on internationalization message information.
-* Automatically defines required and optional fields.
-* Enhances the accuracy and efficiency of documentation.
+== Getting Started
 
-== Practical Example: Documenting a Member List API
+=== Installation
 
-Let's dive into a practical example that showcases how Spring REST Docs Easy can streamline your documentation process.
+To use Spring REST Docs Easy in your project, add the following dependency to your build file:
 
-=== Test Code
-
-[source,java]
+[source,gradle]
 ----
-@WebMvcTest(MemberRestController.class)
-@AutoConfigureMvcRestDocs
-class MemberRestControllerTest {
-  @Autowired
-  private RestDocs restDocs;
-
-  @Test
-  void list() throws Exception {
-      mockMvc.perform(get("/members"))
-          .andExpect(status().isOk())
-          .andDo(document(RESTDOCS_PATH,
-              restDocs.generate(MemberResponse.class).responseFields("[].")
-                  .andWithPrefix("[].locationAddress.", restDocs.generate(LocationAddress.class).toField())
-          ));
-  }
+dependencies {
+    testImplementation 'com.github.syakuis:spring-restdocs-easy:1.0.0'
 }
 ----
 
-=== What's Happening Behind the Scenes
+== Usage Example
 
-1. *Automatic Field Discovery*: The library scans the `MemberResponse` class and its nested `LocationAddress` class, identifying all fields and their types.
-
-2. *Smart Prefixing*: The `andWithPrefix("[].locationAddress.", ...)` part intelligently handles nested objects in your response, ensuring clear and accurate documentation of complex structures.
-
-3. *Validation Integration*: If you've used validation annotations in your model classes, Spring REST Docs Easy will automatically include this information in the generated documentation.
-
-4. *Internationalization Support*: The library can use i18n messages for field descriptions, making it easy to create multilingual documentation.
-
-=== Generated Documentation
-
-==== Sample Request
-
-[source,http]
+=== Test Code
+[source,java]
 ----
-GET /members HTTP/1.1
-Host: localhost:8080
-----
+@WebMvcTest(UserController.class)
+@AutoConfigureMvcRestDocs
+class UserControllerTest {
+    @Autowired
+    private RestDocs restDocs;
 
-==== Sample Response
-
-[source,http]
-----
-HTTP/1.1 200 OK
-Content-Type: application/json
-Content-Length: 3265
-
-[ {
-  "id" : 699,
-  "name" : "Name_wusha",
-  "age" : 81,
-  "job" : "ENGINEER",
-  "email" : "email_bdifzyt@example.com",
-  "active" : true,
-  "tags" : [ "tag_urx", "tag_rvq", "tag_pta", "tag_jtp" ],
-  "locationAddress" : {
-    "address" : "Street_yhgux",
-    "detailAddress" : "City_yrbqp",
-    "zipCode" : "Country_lzuzr"
-  }
-}, { ....
+    @Test
+    void getUser() throws Exception {
+        mockMvc.perform(get("/api/users/{id}", 1))
+            .andExpect(status().isOk())
+            .andDo(document("user-get",
+                restDocs.generate(UserResponse.class)
+                    .andGenerate("address.", AddressResponse.class)
+                    .responseFields()));
+    }
+}
 ----
 
-== Benefits for Developers
+=== Message Properties
+[source,properties]
+----
+com.example.UserResponse.id=Unique user identifier
+com.example.UserResponse.name=User's name
+com.example.UserResponse.email=User's email address
+com.example.AddressResponse=address
+com.example.AddressResponse.street=Street address
+----
 
-1. *Time-Saving*: No more manual writing of API docs. The library does the heavy lifting.
-2. *Accuracy*: Documentation is generated directly from your code, reducing discrepancies between docs and actual implementation.
-3. *Maintainability*: As your API evolves, your documentation automatically stays up-to-date.
-4. *Internationalization*: Easy support for multiple languages without duplicating effort.
-5. *Integration with Existing Tools*: Works seamlessly with Spring REST Docs, leveraging its power while simplifying its use.
+== Key Benefits
+
+* Maintains the test-driven documentation advantages of Spring REST Docs
+* Significantly reduces the amount of documentation code
+* Facilitates multilingual document management with i18n support
+* Automatically documents validation rules
 
 == Conclusion
 
-Spring REST Docs Easy supports developers in performing API documentation more efficiently and reliably through its key strengths. It offers significant advantages, particularly in projects with frequent data model changes or those requiring multilingual support. By using Spring REST Docs Easy, you can turn the chore of API documentation into a breeze, allowing you to focus more on building great features and less on documenting them.
+Spring REST Docs Easy is a practical tool that maintains the benefits of Spring REST Docs while reducing repetitive documentation tasks. It is particularly useful for documenting APIs that require multilingual support or have complex object structures.

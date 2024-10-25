@@ -8,21 +8,43 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * Represents metadata information about a field in a class.
+ * Represents comprehensive metadata about a field in a class for "Spring REST Docs Easy".
+ * This record encapsulates field information needed for generating API documentation,
+ * including field properties, class information, and annotations.
+ *
+ * <p>Features:</p>
+ * - Complete field metadata for documentation generation
+ * - Support for validation annotations processing
+ * - Class and package information for context
+ * - Reflection capabilities for field access
+ *
+ * <p>Example usage:</p>
+ * <pre>{@code
+ * ClassFieldMetadata metadata = ClassFieldMetadata.builder()
+ *     .packageName("com.example.api")
+ *     .className("UserDto")
+ *     .name("email")
+ *     .packageClassName("com.example.api.UserDto")
+ *     .canonicalName("java.lang.String")
+ *     .type(String.class)
+ *     .target(UserDto.class)
+ *     .field(UserDto.class.getDeclaredField("email"))
+ *     .annotations(field.getAnnotations())
+ *     .build();
+ * }</pre>
  *
  * @author Seok Kyun. Choi.
  * @since 2024-06-16
- * @param packageName The package name of the class containing the field
- * @param className The simple name of the class containing the field
- * @param name The name of the field
- * @param packageClassName The fully qualified name of the class containing the field,
- *                         in the format "package.ClassName"
- * @param canonicalName The canonical name of the field's type
- * @param type The {@link Class} object representing the field's type
- * @param target The {@link Class} object representing the class that declares the field
- * @param field The {@link Field} object representing the field
- * @param annotations An array of {@link Annotation} objects representing the annotations
- *                    present on the field
+ *
+ * @param packageName The package name of the class containing the field (e.g., "com.example.api")
+ * @param className The simple name of the class containing the field (e.g., "UserDto")
+ * @param name The field name as declared in the class (e.g., "email")
+ * @param packageClassName The fully qualified class name (e.g., "com.example.api.UserDto")
+ * @param canonicalName The canonical name of the field's type (e.g., "java.lang.String")
+ * @param type The Class object representing the field's type (e.g., String.class)
+ * @param target The Class object of the declaring class (e.g., UserDto.class)
+ * @param field The Field object for reflection operations
+ * @param annotations Array of annotations on the field (e.g., @NotNull, @Email)
  */
 @Builder
 public record ClassFieldMetadata(

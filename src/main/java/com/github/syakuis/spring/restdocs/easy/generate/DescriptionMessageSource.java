@@ -9,12 +9,42 @@ import java.util.Locale;
 import java.util.Objects;
 
 /**
- * This class handles the retrieval of field descriptions and enum constant messages from a MessageSource.
- * It is used to generate documentation for fields, including handling special cases for enums.
- * If the field is of an enum type, it retrieves individual messages for each enum constant.
- * For non-enum fields, it simply fetches the message based on the field's name.
- * The messages are resolved using the Spring MessageSource, which allows for internationalization (i18n)
- * and customization based on the application's message properties files.
+ * Core message resolution component for "Spring REST Docs Easy" that handles
+ * field descriptions and enum constant documentation.
+ *
+ * <p>Key features:</p>
+ * - Resolves field descriptions using Spring's MessageSource
+ * - Special handling for enum fields and their constants
+ * - Supports message expression resolution (e.g., {messageCode})
+ * - Internationalization (i18n) support through MessageSource
+ *
+ * <p>Message resolution patterns:</p>
+ * - Regular fields: "{package}.{class}.{field}"
+ * - Enum fields: "{package}.{enum}" for type, "{package}.{enum}.{constant}" for each constant
+ *
+ * <p>Example usage:</p>
+ * <pre>{@code
+ * // Message properties file:
+ * com.example.UserDto.email=User email address
+ * com.example.UserStatus=User account status
+ * com.example.UserStatus.ACTIVE=Active user account
+ * com.example.UserStatus.INACTIVE=Deactivated user account
+ *
+ * // Usage in code:
+ * DescriptionMessageSource source = new DescriptionMessageSource(messageSource);
+ *
+ * // Regular field description
+ * String emailDesc = source.getMessage(emailFieldMetadata);
+ * // Result: "User email address"
+ *
+ * // Enum field description
+ * String statusDesc = source.getMessage(statusFieldMetadata);
+ * // Result:
+ * // User account status
+ * //
+ * // ACTIVE : Active user account +
+ * // INACTIVE : Deactivated user account
+ * }</pre>
  *
  * @author Seok Kyun Choi
  * @since 2024-01-12
@@ -33,11 +63,12 @@ public class DescriptionMessageSource {
     }
 
     /**
-     * Retrieves the message for a field described by DataClassMetadata.
-     * If the field is an enum, it fetches messages for each enum constant as well.
+     * Retrieves the message for a field using its metadata.
+     * For regular fields, looks up a single message.
+     * For enum fields, combines the enum type message with formatted constant messages.
      *
-     * @param classFieldMetadata Metadata representing the field.
-     * @return The resolved message or formatted enum constant messages.
+     * @param classFieldMetadata metadata containing field information
+     * @return resolved message(s) for the field
      */
     public String getMessage(ClassFieldMetadata classFieldMetadata) {
         return isEnumField(classFieldMetadata)
@@ -46,7 +77,7 @@ public class DescriptionMessageSource {
     }
 
     /**
-     * Checks if the field type in DataClassMetadata is an enum.
+     * Checks if the field type in ClassFieldMetadata is an enum.
      *
      * @param classFieldMetadata Metadata representing the field.
      * @return true if the field is an enum, false otherwise.
@@ -113,13 +144,16 @@ public class DescriptionMessageSource {
     }
 
     /**
-     * Resolves a message from an expression, with an optional default message.
-     * If the expression contains a message code in curly braces (e.g. `{messageCode}`),
-     * the message is retrieved from the MessageSource.
+     * Resolves a message from an expression that may contain a message key.
+     * Supports direct messages and message keys in the format {key}.
      *
-     * @param expression The expression that may contain a message code.
-     * @param defaultMessage The default message to return if no message is found.
-     * @return The resolved message or the default message.
+     * <p>Examples:</p>
+     * - "{user.email.description}" → looks up message for key "user.email.description"
+     * - "Direct message" → returns "Direct message" unchanged
+     *
+     * @param expression message or message key expression
+     * @param defaultMessage fallback message if key is not found
+     * @return resolved message or default message
      */
     public String getMessageByExpression(Object expression, String defaultMessage) {
         if (expression == null) {

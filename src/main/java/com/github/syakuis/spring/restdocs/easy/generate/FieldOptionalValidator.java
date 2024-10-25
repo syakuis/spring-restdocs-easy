@@ -12,9 +12,34 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 /**
- * This class is responsible for validating whether a field is optional or mandatory
- * based on validation annotations such as {@code @NotNull}, {@code @NotEmpty}, and {@code @NotBlank}.
- * It also handles validation groups to determine if the field should be validated in specific contexts.
+ * Field validation analyzer for "Spring REST Docs Easy" that determines field optionality
+ * based on Jakarta validation annotations and validation groups. Used to generate accurate
+ * API documentation reflecting validation requirements.
+ *
+ * <p>Key features:</p>
+ * - Processes standard Jakarta validation annotations (@NotNull, @NotEmpty, @NotBlank)
+ * - Supports validation groups for contextual documentation
+ * - Detects validation constraints for documentation generation
+ * - Integrates with Spring REST Docs field descriptors
+ *
+ * <p>Example usage:</p>
+ * <pre>{@code
+ * // Given a DTO class
+ * public class UserDto {
+ *     @NotNull(groups = CreateGroup.class)
+ *     private String name;
+ *
+ *     @NotEmpty(groups = {CreateGroup.class, UpdateGroup.class})
+ *     private String email;
+ * }
+ *
+ * // Create validator with validation groups
+ * var validator = new FieldOptionalValidator(List.of(CreateGroup.class));
+ *
+ * // Check fields
+ * boolean isNameOptional = validator.isFieldOptional(UserDto.class.getDeclaredField("name"));
+ * boolean hasEmailConstraints = validator.hasValidationConstraint(UserDto.class.getDeclaredField("email"));
+ * }</pre>
  *
  * @author Seok Kyun. Choi.
  * @since 2023-07-14
@@ -122,15 +147,29 @@ public class FieldOptionalValidator {
     }
 
     /**
-     * Checks if the field has any validation constraint annotations.
+     * Checks if the field has any validation constraint annotations that should be
+     * documented. Used to determine whether constraint information should be included
+     * in the generated API documentation.
      *
-     * A field is considered to have a validation constraint if any of its annotations
-     * are marked with {@link Constraint}, and either:
-     * - The annotation has no validation groups, or
-     * - The annotation's groups match the provided validation groups.
+     * <p>A field is considered to have a documentable validation constraint if:</p>
+     * - It has any annotation marked with {@link Constraint}, AND
+     * - Either:
+     *   - The annotation has no validation groups specified, OR
+     *   - The annotation's groups match any of the configured validation groups
      *
-     * @param field the field to check
-     * @return true if the field has a validation constraint, false otherwise
+     * <p>Example constraints:</p>
+     * <pre>{@code
+     * // Always documented (no groups)
+     * @Size(min = 1, max = 100)
+     * private String name;
+     *
+     * // Documented only when CreateGroup is active
+     * @NotNull(groups = CreateGroup.class)
+     * private String email;
+     * }</pre>
+     *
+     * @param field the field to check for constraints
+     * @return true if the field has relevant validation constraints for documentation
      */
     public boolean hasValidationConstraint(Field field) {
         if (field == null) {

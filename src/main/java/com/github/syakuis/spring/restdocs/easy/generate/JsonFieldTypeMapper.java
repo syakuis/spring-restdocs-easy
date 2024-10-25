@@ -8,13 +8,30 @@ import java.time.LocalTime;
 import java.util.*;
 
 /**
- * JsonFieldTypeMapper is a utility class that serves as a mapper for Java Class types to
- * their corresponding JsonFieldType values as defined by Spring REST Docs.
- * <p>
- * This class allows for managing the mapping of various Java types (e.g., primitives,
- * collections, date types) not only for generating JSON representations but also for
- * mapping parameter types in RESTful applications, facilitating type recognition and
- * consistent handling of data formats.
+ * Type mapping component for "Spring REST Docs Easy" that converts Java types
+ * to Spring REST Docs JsonFieldType. Provides default mappings and customization
+ * options for generating accurate API documentation.
+ *
+ * <p>Default mappings:</p>
+ * - Collections/Maps: Map → OBJECT, Collection → ARRAY
+ * - Primitives: boolean → BOOLEAN, numeric types → NUMBER
+ * - Strings: String, CharSequence, char → STRING
+ * - Date/Time: LocalDateTime, LocalDate, LocalTime → STRING
+ * - Others: Enum, UUID, Currency, Locale → STRING
+ *
+ * <p>Example usage:</p>
+ * <pre>{@code
+ * JsonFieldTypeMapper mapper = new JsonFieldTypeMapper();
+ *
+ * // Add custom type mapping
+ * mapper.add(YourCustomType.class, JsonFieldType.STRING);
+ *
+ * // Override existing mapping
+ * mapper.add(LocalDate.class, JsonFieldType.OBJECT);
+ *
+ * // Get type for documentation
+ * JsonFieldType type = mapper.get(YourCustomType.class);
+ * }</pre>
  *
  * @author Seok Kyun. Choi.
  * @since 2024-10-18
@@ -59,10 +76,17 @@ public class JsonFieldTypeMapper {
     }
 
     /**
-     * Returns the corresponding JsonFieldType for a given Class type.
+     * Determines the JsonFieldType for a given Java class type.
+     * Uses type hierarchy traversal to find the most appropriate mapping.
      *
-     * @param objectType the Class type for which the JsonFieldType is requested
-     * @return JsonFieldType corresponding to the provided Class type
+     * <p>Resolution strategy:</p>
+     * 1. If type is array → ARRAY
+     * 2. If direct mapping exists → mapped type
+     * 3. If assignable from mapped type → mapped type
+     * 4. Default → OBJECT
+     *
+     * @param objectType the Class type to map to JsonFieldType
+     * @return appropriate JsonFieldType for documentation
      */
     public JsonFieldType get(Class<?> objectType) {
         if (objectType.isArray()) {
@@ -77,9 +101,10 @@ public class JsonFieldTypeMapper {
     }
 
     /**
-     * Sets the mapping data to a new set of mappings.
+     * Replaces all existing mappings with new ones.
+     * Use with caution as this removes all default mappings.
      *
-     * @param newData a Map containing new Class to JsonFieldType mappings
+     * @param newData map of new type mappings to use
      */
     public void set(Map<Class<?>, JsonFieldType> newData) {
         data.clear();
@@ -87,37 +112,41 @@ public class JsonFieldTypeMapper {
     }
 
     /**
-     * Adds a new mapping for a specific Class type to JsonFieldType.
+     * Adds or updates a single type mapping.
+     * If the type already exists, its mapping will be updated.
      *
-     * @param type the Class type to be added
-     * @param jsonFieldType the corresponding JsonFieldType for the Class type
+     * @param type the Java type to map
+     * @param jsonFieldType the corresponding documentation type
      */
     public void add(Class<?> type, JsonFieldType jsonFieldType) {
         data.put(type, jsonFieldType);
     }
 
     /**
-     * Removes a specific mapping for a given Class type.
+     * Removes a type mapping if it exists.
+     * Note: Removing core type mappings may affect documentation accuracy.
      *
-     * @param type the Class type to be removed from the mapping
+     * @param type the type mapping to remove
      */
     public void remove(Class<?> type) {
         data.remove(type);
     }
 
     /**
-     * Adds all mappings from an additional set of Class to JsonFieldType mappings.
+     * Adds multiple type mappings at once.
+     * Existing mappings for the same types will be overwritten.
      *
-     * @param additionalData a Map containing additional Class to JsonFieldType mappings
+     * @param additionalData map of additional type mappings
      */
     public void addAll(Map<Class<?>, JsonFieldType> additionalData) {
         data.putAll(additionalData);
     }
 
     /**
-     * Removes multiple mappings from the existing set based on the provided collection of Class types.
+     * Removes multiple type mappings at once.
+     * Useful for bulk removal of custom mappings.
      *
-     * @param typesToRemove a Collection of Class types to be removed from the mapping
+     * @param typesToRemove collection of types whose mappings should be removed
      */
     public void removeAll(Collection<Class<?>> typesToRemove) {
         for (Class<?> type : typesToRemove) {

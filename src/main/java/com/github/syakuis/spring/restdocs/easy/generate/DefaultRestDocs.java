@@ -30,8 +30,15 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
 
 /**
- * Default implementation of the RestDocs interface.
- * This class generates documentation descriptors using the provided MessageSource and target class.
+ * Default implementation of the RestDocs interface for "Spring REST Docs Easy".
+ * Provides core functionality for generating API documentation descriptors with
+ * support for message internationalization and custom type mapping.
+ *
+ * <p>Features:</p>
+ * - Generates documentation descriptors from Java classes
+ * - Supports validation groups for conditional documentation
+ * - Handles nested object documentation with prefixes
+ * - Provides flexible descriptor modification capabilities
  *
  * @author Seok Kyun. Choi.
  * @since 2024-10-22
@@ -40,21 +47,39 @@ class DefaultRestDocs implements RestDocs {
     private final MessageSource messageSource;
     private final ClassDescriptorGenerator classDescriptorGenerator;
 
+    /**
+     * Creates a new instance with specified message source and type mapper.
+     *
+     * @param messageSource source for resolving i18n messages
+     * @param jsonFieldTypeMapper custom type mapping configuration
+     */
     public DefaultRestDocs(MessageSource messageSource, JsonFieldTypeMapper jsonFieldTypeMapper) {
         this.messageSource = messageSource;
         this.classDescriptorGenerator = new ClassDescriptorGenerator(messageSource, jsonFieldTypeMapper);
     }
 
+    /**
+     * {@inheritDoc}
+     * Creates a new HeadersGenerator with the configured message source.
+     */
     @Override
     public HeadersGenerator headers() {
         return new DefaultHeadersGenerator(messageSource);
     }
 
+    /**
+     * {@inheritDoc}
+     * Creates a new ParamsGenerator with the configured message source.
+     */
     @Override
     public ParamsGenerator params() {
         return new DefaultParamsGenerator(messageSource);
     }
 
+    /**
+     * {@inheritDoc}
+     * Creates a new DescriptorsGenerator with the configured message source.
+     */
     @Override
     public DescriptorsGenerator descriptors() {
         return new DefaultDescriptorsGenerator(messageSource);
@@ -85,22 +110,39 @@ class DefaultRestDocs implements RestDocs {
     }
 
     /**
-     * Default implementation of the Operator interface.
-     * Handles operations like filtering, excluding, and modifying descriptors.
+     * Default implementation of the Operator interface for "Spring REST Docs Easy".
+     * Provides methods for manipulating and transforming documentation descriptors.
      */
     static class DefaultOperator implements Operator {
         private Stream<Descriptor> descriptors;
         private ClassDescriptorGenerator classDescriptorGenerator;
 
+        /**
+         * Creates a new operator with the specified descriptors.
+         *
+         * @param descriptors initial list of descriptors
+         */
         public DefaultOperator(List<Descriptor> descriptors) {
             this.descriptors = descriptors.stream();
         }
 
+        /**
+         * Creates a new operator with descriptors and generator.
+         *
+         * @param descriptors initial list of descriptors
+         * @param classDescriptorGenerator generator for additional descriptors
+         */
         public DefaultOperator(List<Descriptor> descriptors, ClassDescriptorGenerator classDescriptorGenerator) {
             this.descriptors = descriptors.stream();
             this.classDescriptorGenerator = classDescriptorGenerator;
         }
 
+        /**
+         * {@inheritDoc}
+         * Adds descriptors generated from the specified class with prefix support.
+         *
+         * @throws IllegalStateException if classDescriptorGenerator is not set
+         */
         @Override
         public Operator addAll(String prefix, Class<?> targetClass, Class<?>... validGroups) {
             if (classDescriptorGenerator == null) {
@@ -219,10 +261,25 @@ class DefaultRestDocs implements RestDocs {
             return update(fieldNames, descriptor -> descriptor.optional(false));
         }
 
+        /**
+         * Utility method to add prefix to field names.
+         * Handles null or blank prefix cases appropriately.
+         *
+         * @param prefix prefix to add to the name
+         * @param name field name
+         * @return prefixed name or original name if prefix is null/blank
+         */
         private String prefix(String prefix, String name) {
             return prefix != null && !prefix.isBlank() ? prefix + name : name;
         }
 
+        /**
+         * Converts descriptors to Spring REST Docs FieldDescriptor objects.
+         * Applies prefix if specified and updates field properties.
+         *
+         * @return list of configured FieldDescriptor objects
+         * @see org.springframework.restdocs.payload.PayloadDocumentation#fieldWithPath
+         */
         @Override
         public List<FieldDescriptor> toField() {
             return this.descriptors.map(descriptor ->
@@ -231,6 +288,13 @@ class DefaultRestDocs implements RestDocs {
                 )).apply(descriptor)).toList();
         }
 
+        /**
+         * Converts descriptors to Spring REST Docs SubsectionDescriptor objects.
+         * Used for documenting nested object structures.
+         *
+         * @return list of configured SubsectionDescriptor objects
+         * @see org.springframework.restdocs.payload.PayloadDocumentation#subsectionWithPath
+         */
         @Override
         public List<SubsectionDescriptor> toSubsection() {
             return this.descriptors.map(descriptor ->
@@ -239,6 +303,13 @@ class DefaultRestDocs implements RestDocs {
                 )).apply(descriptor)).toList();
         }
 
+        /**
+         * Converts descriptors to Spring REST Docs RequestPartDescriptor objects.
+         * Handles optional status and prefix for multipart request documentation.
+         *
+         * @return list of configured RequestPartDescriptor objects
+         * @see org.springframework.restdocs.request.RequestDocumentation#partWithName
+         */
         @Override
         public List<RequestPartDescriptor> toRequestPart() {
             return this.descriptors.map(descriptor -> {
@@ -254,6 +325,13 @@ class DefaultRestDocs implements RestDocs {
             }).toList();
         }
 
+        /**
+         * Converts descriptors to Spring REST Docs ParameterDescriptor objects.
+         * Used for documenting URL parameters with optional status support.
+         *
+         * @return list of configured ParameterDescriptor objects
+         * @see org.springframework.restdocs.request.RequestDocumentation#parameterWithName
+         */
         @Override
         public List<ParameterDescriptor> toParameter() {
             return this.descriptors.map(descriptor -> {
@@ -269,6 +347,13 @@ class DefaultRestDocs implements RestDocs {
             }).toList();
         }
 
+        /**
+         * Converts descriptors to Spring REST Docs LinkDescriptor objects.
+         * Used for documenting hypermedia links with optional status support.
+         *
+         * @return list of configured LinkDescriptor objects
+         * @see org.springframework.restdocs.hypermedia.HypermediaDocumentation#linkWithRel
+         */
         @Override
         public List<LinkDescriptor> toLink() {
             return this.descriptors.map(descriptor -> {
@@ -284,6 +369,13 @@ class DefaultRestDocs implements RestDocs {
             }).toList();
         }
 
+        /**
+         * Converts descriptors to Spring REST Docs HeaderDescriptor objects.
+         * Used for documenting HTTP headers with optional status support.
+         *
+         * @return list of configured HeaderDescriptor objects
+         * @see org.springframework.restdocs.headers.HeaderDocumentation#headerWithName
+         */
         @Override
         public List<HeaderDescriptor> toHeader() {
             return this.descriptors.map(descriptor -> {
@@ -299,6 +391,13 @@ class DefaultRestDocs implements RestDocs {
             }).toList();
         }
 
+        /**
+         * Converts descriptors to Spring REST Docs CookieDescriptor objects.
+         * Used for documenting cookies with optional status support.
+         *
+         * @return list of configured CookieDescriptor objects
+         * @see org.springframework.restdocs.cookies.CookieDocumentation#cookieWithName
+         */
         @Override
         public List<CookieDescriptor> toCookie() {
             return this.descriptors.map(descriptor -> {
@@ -314,6 +413,12 @@ class DefaultRestDocs implements RestDocs {
             }).toList();
         }
 
+        /**
+         * Returns the raw list of descriptors without any conversion.
+         * Provides access to the original descriptor objects.
+         *
+         * @return list of original Descriptor objects
+         */
         @Override
         public List<Descriptor> toList() {
             return this.descriptors.toList();
@@ -394,16 +499,31 @@ class DefaultRestDocs implements RestDocs {
             return PayloadDocumentation.responseFields(toField());
         }
 
+        /**
+         * Operation not supported in current version.
+         *
+         * @throws UnsupportedOperationException always
+         */
         @Override
         public RequestBodySnippet requestBody() {
             throw new UnsupportedOperationException();
         }
 
+        /**
+         * Operation not supported in current version.
+         *
+         * @throws UnsupportedOperationException always
+         */
         @Override
         public ResponseBodySnippet responseBody() {
             throw new UnsupportedOperationException();
         }
 
+        /**
+         * Operation not supported in current version.
+         *
+         * @throws UnsupportedOperationException always
+         */
         @Override
         public RequestPartBodySnippet requestPartBody() {
             throw new UnsupportedOperationException();
